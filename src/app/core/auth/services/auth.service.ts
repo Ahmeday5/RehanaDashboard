@@ -123,6 +123,17 @@ export class AuthService {
 
   logout(opts: LogoutOptions = {}): void {
     const { redirect = true, reason } = opts;
+
+    // Fire-and-forget — never block the redirect on the network round-trip,
+    // and never surface a toast if it fails (the session is being torn down
+    // client-side regardless). Skipped entirely with no token: an already
+    // logged-out session has nothing for the server to invalidate.
+    if (this.getAccessToken()) {
+      this.api
+        .post<unknown>(AUTH_ENDPOINTS.logout, {}, { context: withInlineHandling() })
+        .subscribe({ error: () => {} });
+    }
+
     this.clearLocalSession();
     this.broadcast({ type: 'logged-out', from: this.tabId });
     if (reason) console.warn(reason);

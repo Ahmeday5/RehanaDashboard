@@ -1,0 +1,53 @@
+<app-modal [open]="open()" title="إضافة مستخدم جديد" size="md" (closed)="close()">
+  <form class="add-user-form" [formGroup]="form" (ngSubmit)="onSubmit()" novalidate>
+
+    <div class="field">
+      <label class="field-label">الاسم الكامل</label>
+      <input class="form-control" formControlName="fullName" placeholder="الاسم الكامل" />
+      <app-form-error [control]="form.controls.fullName" label="الاسم الكامل" />
+    </div>
+
+    <div class="field">
+      <label class="field-label">البريد الإلكتروني</label>
+      <input class="form-control" type="email" formControlName="email" placeholder="name@example.com" />
+      <app-form-error [control]="form.controls.email" label="البريد الإلكتروني" />
+    </div>
+
+    <div class="field">
+      <label class="field-label">رقم الهاتف</label>
+      <input class="form-control" formControlName="phoneNumber" placeholder="01xxxxxxxxx" />
+      <app-form-error [control]="form.controls.phoneNumber" label="رقم الهاتف" />
+    </div>
+
+    <div class="field">
+      <label class="field-label">كلمة السر</label>
+      <app-password-input formControlName="password" autocomplete="new-password" />
+      <app-form-error [control]="form.controls.password" label="كلمة السر" />
+    </div>
+
+    <div class="field">
+      <label class="field-label">الصلاحية</label>
+      <div class="role-toggle">
+        @for (r of roles; track r) {
+          <label class="role-option" [class.role-option--active]="form.controls.role.value === r">
+            <input type="radio" [value]="r" formControlName="role" hidden />
+            <app-icon [name]="r === 'Admin' ? 'shield' : 'user-cog'" [size]="16" />
+            {{ r === 'Admin' ? 'مسؤول' : 'مدير حسابات' }}
+          </label>
+        }
+      </div>
+    </div>
+
+    @if (serverError(); as msg) {
+      <div class="server-error" role="alert">
+        <app-icon name="bell" [size]="15" />
+        <span>{{ msg }}</span>
+      </div>
+    }
+  </form>
+
+  <ng-container modal-footer>
+    <app-button variant="secondary" (clicked)="close()">إلغاء</app-button>
+    <app-button [loading]="isSubmitting()" (clicked)="onSubmit()">حفظ المستخدم</app-button>
+  </ng-container>
+</app-modal>

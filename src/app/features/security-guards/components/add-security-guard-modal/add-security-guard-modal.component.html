@@ -1,0 +1,72 @@
+<app-modal [open]="open()" title="إضافة حارس أمن جديد" size="md" (closed)="close()">
+  <form class="add-guard-form" [formGroup]="form" (ngSubmit)="onSubmit()" novalidate>
+
+    <div class="upload-row">
+      <label
+        class="image-upload"
+        [class.image-upload--filled]="!!imagePreviewUrl()"
+        (dragover)="$event.preventDefault()"
+        (drop)="onImageDrop($event)"
+      >
+        <input type="file" accept="image/*" (change)="onImageSelected($event)" hidden />
+        @if (imagePreviewUrl(); as url) {
+          <img class="image-upload-preview" [src]="url" alt="معاينة الصورة" />
+        } @else {
+          <app-icon name="shield" [size]="22" />
+        }
+      </label>
+      <div class="upload-copy">
+        <span class="upload-title">الصورة الشخصية</span>
+        <span class="upload-hint">اختياري — اسحب صورة هنا أو اضغط للاختيار</span>
+        @if (selectedImage(); as file) {
+          <button type="button" class="upload-remove" (click)="clearImage()">
+            <app-icon name="x" [size]="12" />
+            {{ file.name }}
+          </button>
+        }
+      </div>
+    </div>
+
+    <div class="field">
+      <label class="field-label">الاسم</label>
+      <input class="form-control" formControlName="userName" placeholder="اسم حارس الأمن" />
+      <app-form-error [control]="form.controls.userName" label="الاسم" />
+    </div>
+
+    <div class="field">
+      <label class="field-label">البريد الإلكتروني</label>
+      <input class="form-control" type="email" formControlName="email" placeholder="name@example.com" />
+      <app-form-error [control]="form.controls.email" label="البريد الإلكتروني" />
+    </div>
+
+    <div class="field">
+      <label class="field-label">رقم الهاتف</label>
+      <input class="form-control" formControlName="phoneNumber" placeholder="01xxxxxxxxx" />
+      <app-form-error [control]="form.controls.phoneNumber" label="رقم الهاتف" />
+    </div>
+
+    <div class="field">
+      <label class="field-label">كلمة السر</label>
+      <app-password-input formControlName="password" autocomplete="new-password" />
+      <app-form-error [control]="form.controls.password" label="كلمة السر" />
+    </div>
+
+    <div class="field">
+      <label class="field-label">رقم البوابة</label>
+      <input class="form-control" formControlName="gateNumber" placeholder="مثال: 4" />
+      <app-form-error [control]="form.controls.gateNumber" label="رقم البوابة" />
+    </div>
+
+    @if (serverError(); as msg) {
+      <div class="server-error" role="alert">
+        <app-icon name="bell" [size]="15" />
+        <span>{{ msg }}</span>
+      </div>
+    }
+  </form>
+
+  <ng-container modal-footer>
+    <app-button variant="secondary" (clicked)="close()">إلغاء</app-button>
+    <app-button [loading]="isSubmitting()" (clicked)="onSubmit()">حفظ الحارس</app-button>
+  </ng-container>
+</app-modal>

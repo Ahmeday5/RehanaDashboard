@@ -1,0 +1,163 @@
+/* ═══════ User identity cell ═══════ */
+.user-cell {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  text-align: start;
+}
+
+.user-avatar {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 38px;
+  height: 38px;
+  border-radius: 11px;
+  background: linear-gradient(135deg, var(--primary-light) 0%, color-mix(in srgb, var(--primary) 20%, var(--bg2)) 100%);
+  color: var(--primary-dark);
+  flex-shrink: 0;
+  font-size: 14px;
+  font-weight: 700;
+  box-shadow: 0 1px 2px rgba(20, 30, 15, 0.08);
+  text-transform: uppercase;
+}
+
+.user-identity {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+}
+
+.user-name {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--txt);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.user-role-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  align-self: flex-start;
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: var(--primary-light);
+  color: var(--primary-dark);
+  font-size: 10.5px;
+  font-weight: 700;
+
+  &--manager {
+    background: color-mix(in srgb, var(--primary-dark) 12%, var(--bg2));
+    color: var(--primary-deep);
+  }
+}
+
+.row-actions {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+}
+
+/* ═══════ Loading skeleton ═══════ */
+.users-skeleton {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.users-skeleton-row {
+  height: 56px;
+  border-radius: 12px;
+  background: linear-gradient(90deg, var(--bg3) 25%, var(--brd) 50%, var(--bg3) 75%);
+  background-size: 200% 100%;
+  animation: skeleton-shimmer 1.4s ease-in-out infinite;
+}
+
+@keyframes skeleton-shimmer {
+  from { background-position: 200% 0; }
+  to   { background-position: -200% 0; }
+}
+
+.users-error {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 18px 20px;
+  border-radius: 14px;
+  background: color-mix(in srgb, var(--danger) 8%, transparent);
+  color: var(--danger);
+  font-size: 12.5px;
+}
+
+/* ═══════ Edit dialog ═══════ */
+.edit-form {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.field-label {
+  font-size: 11.5px;
+  font-weight: 600;
+  color: var(--txt2);
+}
+
+.role-toggle {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+.role-option {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 12px;
+  border-radius: 11px;
+  border: 1.5px solid var(--brd2);
+  background: var(--bg2);
+  color: var(--txt2);
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: border-color 0.15s, background 0.15s, color 0.15s;
+
+  &:hover {
+    border-color: var(--primary);
+  }
+
+  &--active {
+    border-color: var(--primary);
+    background: var(--primary-light);
+    color: var(--primary-dark);
+  }
+}
+
+.server-error {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 14px;
+  border-radius: 10px;
+  background: color-mix(in srgb, var(--danger) 8%, transparent);
+  color: var(--danger);
+  font-size: 12px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .users-skeleton-row {
+    animation: none;
+  }
+}

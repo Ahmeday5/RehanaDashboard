@@ -1,28 +1,23 @@
 <header class="topbar">
 
   <!-- Mobile: hamburger to open sidebar drawer -->
-  <button class="t-hamburger" (click)="layout.toggleMobile()" aria-label="Menu">
+  <button class="t-hamburger" (click)="layout.toggleMobile()" aria-label="القائمة">
     @if (layout.mobileOpen()) {
-    <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
-      <path d="M3 3l12 12M15 3L3 15" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" />
-    </svg>
+      <app-icon name="x" [size]="18" />
     } @else {
-    <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
-      <path d="M2 5h14M2 9h14M2 13h14" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" />
-    </svg>
+      <app-icon name="menu" [size]="18" />
     }
   </button>
 
-  <!-- Logo / app name -->
-  <a class="logo" routerLink="/owners">
-    <span class="logo-text">{{ appName }}</span>
-  </a>
-
   <div class="tright">
-    <span class="tname">{{ currentUser()?.userName }}</span>
+    <div class="t-user">
+      <span class="t-avatar">{{ initials() }}</span>
+      <span class="t-user-name">{{ currentUser()?.userName }}</span>
+    </div>
 
-    <!-- Logout -->
-    <app-button variant="secondary" size="sm" (clicked)="logout()">تسجيل خروج</app-button>
+    <button class="t-logout" (click)="logout()" title="تسجيل خروج" aria-label="تسجيل خروج">
+      <app-icon name="log-out" [size]="16" />
+    </button>
   </div>
 
 </header>

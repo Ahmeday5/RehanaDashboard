@@ -117,10 +117,10 @@ body {
 .card {
   background: var(--bg2);
   border: 1px solid var(--brd);
-  border-radius: var(--rl);
-  padding: 13px;
-  margin-bottom: 11px;
-  box-shadow: var(--shadow);
+  border-radius: 16px;
+  padding: 22px 24px;
+  margin-bottom: 16px;
+  box-shadow: 0 1px 2px rgba(20, 30, 15, 0.04), 0 8px 24px -16px rgba(20, 30, 15, 0.12);
 }
 
 /* ── BUTTONS ── */
@@ -250,25 +250,29 @@ body {
 
 /* ── FORMS ── */
 .form-label {
-  font-size: 10px;
+  font-size: 11.5px;
   color: var(--txt2);
-  font-weight: 500;
-  margin-bottom: 3px;
+  font-weight: 600;
+  margin-bottom: 5px;
 }
 .form-control,
 .form-select {
   font-family: var(--font-base);
-  font-size: 11px;
+  font-size: 13px;
   color: var(--txt);
   background: var(--bg2);
-  border-color: var(--brd2);
-  border-radius: var(--r);
-  padding: 7px 10px;
+  border: 1.5px solid var(--brd2);
+  border-radius: 10px;
+  padding: 10px 14px;
+  transition: border-color 0.15s, box-shadow 0.15s;
   &:focus {
-    border-color: var(--bl);
-    box-shadow: none;
+    border-color: var(--primary);
+    box-shadow: 0 0 0 4px var(--primary-light);
     background: var(--bg2);
     color: var(--txt);
+  }
+  &.is-invalid {
+    border-color: var(--danger);
   }
   &.fl-ro {
     background: var(--bg3) !important;
@@ -314,44 +318,82 @@ body {
 .tw {
   border: 1px solid var(--brd);
   border-radius: var(--rl);
+  overflow: hidden;
   overflow-x: auto;
   -webkit-overflow-scrolling: touch;
   overscroll-behavior-x: contain;
   margin-bottom: 11px;
   background: var(--bg2);
+  box-shadow: 0 1px 2px rgba(20, 30, 15, 0.04);
 
   table {
-    font-size: 11px;
+    font-size: 12.5px;
     margin-bottom: 0;
     white-space: nowrap;
     width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
 
     button {
       touch-action: manipulation;
     }
 
     thead th {
-      padding: 8px 10px;
+      padding: 13px 16px;
       text-align: center;
-      font-weight: 500;
+      font-weight: 700;
       color: var(--txt2);
       background: var(--bg3);
-      border-bottom: 1px solid var(--brd);
-      border-top: none;
-      font-size: 10px;
+      border-bottom: 2px solid color-mix(in srgb, var(--primary) 25%, var(--brd));
+      font-size: 10.5px;
+      letter-spacing: 0.03em;
+      text-transform: uppercase;
     }
     tbody td {
-      padding: 8px 10px;
-      border-bottom: 1px solid var(--brd);
+      padding: 13px 16px;
+      border-bottom: 1px solid color-mix(in srgb, var(--brd) 60%, transparent);
       vertical-align: middle;
       text-align: center;
+      color: var(--txt);
     }
     tbody tr:last-child td {
       border-bottom: none;
     }
-    tbody tr:hover td {
-      background: var(--bg3);
+    tbody tr:nth-child(even) td {
+      background: color-mix(in srgb, var(--bg3) 45%, transparent);
     }
+    tbody tr {
+      transition: background 0.14s ease-out, transform 0.14s ease-out, box-shadow 0.14s ease-out;
+      animation: row-rise 0.35s cubic-bezier(0.16, 1, 0.3, 1) backwards;
+    }
+    /* Stagger the first screenful of rows — a table that "arrives" reads as
+       considered, not just a static dump of <tr> elements. Capped at 12 rows
+       so a long list doesn't keep animating rows far below the fold. */
+    @for $i from 1 through 12 {
+      tbody tr:nth-child(#{$i}) {
+        animation-delay: #{$i * 0.03}s;
+      }
+    }
+    tbody tr:hover {
+      position: relative;
+      z-index: 1;
+      transform: translateY(-1px);
+      box-shadow: 0 6px 16px -8px rgba(20, 30, 15, 0.18);
+    }
+    tbody tr:hover td {
+      background: var(--primary-light);
+    }
+  }
+}
+
+@keyframes row-rise {
+  from { opacity: 0; transform: translateY(6px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .tw table tbody tr {
+    animation: none;
   }
 }
 
@@ -383,19 +425,21 @@ body {
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
-  margin-bottom: 3px;
+  margin-bottom: 20px;
   flex-wrap: wrap;
-  gap: 8px;
+  gap: 12px;
 }
 .pgt {
-  font-size: 17px;
+  font-family: var(--font-display);
+  font-size: 22px;
   font-weight: 700;
   color: var(--txt);
+  letter-spacing: -0.01em;
 }
 .pgs {
-  font-size: 11px;
+  font-size: 12.5px;
   color: var(--txt2);
-  margin-top: 2px;
+  margin-top: 4px;
 }
 
 /* ── CARD HEADER (every card) ── */
@@ -418,7 +462,8 @@ body {
 .app-modal-backdrop {
   position: fixed;
   inset: 0;
-  background: rgba(0, 0, 0, 0.45);
+  background: rgba(10, 14, 8, 0.55);
+  backdrop-filter: blur(3px);
   z-index: 1055;
   display: flex;
   align-items: center;
@@ -429,15 +474,15 @@ body {
 
 .app-modal {
   background: var(--bg2);
-  border-radius: var(--rl);
-  padding: 20px;
+  border-radius: 16px;
+  padding: 22px 24px 24px;
   width: 100%;
   max-width: 560px;
   max-height: 90vh;
   overflow-y: auto;
   -webkit-overflow-scrolling: touch;
   overscroll-behavior-y: contain;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.18);
+  box-shadow: 0 24px 64px -12px rgba(10, 14, 8, 0.35), 0 2px 8px rgba(10, 14, 8, 0.08);
   animation: app-modal-pop 0.18s ease-out;
 
   &--sm { max-width: 380px; }
@@ -446,30 +491,40 @@ body {
   &--xl { max-width: 980px; }
 
   @media (max-width: 576px) {
-    padding: 16px;
+    padding: 18px;
   }
 }
 
 .app-modal-title {
-  font-size: 16px;
+  font-family: var(--font-display);
+  font-size: 17px;
   font-weight: 700;
-  margin-bottom: 14px;
+  color: var(--txt);
+  margin-bottom: 18px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid var(--brd);
   display: flex;
   justify-content: space-between;
   align-items: center;
 }
 
 .app-modal-close {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
   cursor: pointer;
-  font-size: 22px;
+  font-size: 18px;
   line-height: 1;
   color: var(--txt3);
   border: none;
-  background: none;
+  background: var(--bg3);
   font-family: inherit;
-  padding: 0 4px;
-  transition: color 0.12s;
-  &:hover { color: var(--txt); }
+  padding: 0;
+  transition: color 0.12s, background 0.12s;
+  &:hover { color: var(--txt); background: var(--brd); }
 }
 
 @keyframes app-modal-fade {

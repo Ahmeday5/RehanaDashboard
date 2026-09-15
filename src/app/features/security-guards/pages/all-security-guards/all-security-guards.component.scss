@@ -1,0 +1,217 @@
+/* ═══════ Guard identity cell ═══════ */
+.guard-cell {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  text-align: start;
+}
+
+.guard-avatar {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 38px;
+  height: 38px;
+  border-radius: 11px;
+  background: linear-gradient(135deg, var(--primary-light) 0%, color-mix(in srgb, var(--primary) 20%, var(--bg2)) 100%);
+  color: var(--primary-dark);
+  overflow: hidden;
+  flex-shrink: 0;
+  box-shadow: 0 1px 2px rgba(20, 30, 15, 0.08);
+
+  img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+}
+
+.guard-avatar-initial {
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.guard-identity {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+}
+
+.guard-name {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--txt);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.guard-gate {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  align-self: flex-start;
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: var(--primary-light);
+  color: var(--primary-dark);
+  font-size: 10.5px;
+  font-weight: 700;
+}
+
+.row-actions {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+}
+
+/* ═══════ Loading skeleton ═══════ */
+.guards-skeleton {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.guards-skeleton-row {
+  height: 56px;
+  border-radius: 12px;
+  background: linear-gradient(90deg, var(--bg3) 25%, var(--brd) 50%, var(--bg3) 75%);
+  background-size: 200% 100%;
+  animation: skeleton-shimmer 1.4s ease-in-out infinite;
+}
+
+@keyframes skeleton-shimmer {
+  from { background-position: 200% 0; }
+  to   { background-position: -200% 0; }
+}
+
+.guards-error {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 18px 20px;
+  border-radius: 14px;
+  background: color-mix(in srgb, var(--danger) 8%, transparent);
+  color: var(--danger);
+  font-size: 12.5px;
+}
+
+/* ═══════ Edit dialog — shared upload zone + form styling ═══════ */
+.edit-form {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.upload-row {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding-bottom: 18px;
+  border-bottom: 1px solid var(--brd);
+}
+
+.image-upload {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 72px;
+  height: 72px;
+  border-radius: 18px;
+  border: 1.5px dashed var(--brd2);
+  background: var(--bg3);
+  color: var(--txt3);
+  cursor: pointer;
+  overflow: hidden;
+  flex-shrink: 0;
+  transition: border-color 0.15s, color 0.15s, transform 0.15s;
+
+  &:hover {
+    border-color: var(--primary);
+    color: var(--primary-dark);
+    transform: scale(1.02);
+  }
+
+  &--filled {
+    border-style: solid;
+    border-color: var(--primary);
+  }
+}
+
+.image-upload-preview {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.upload-copy {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.upload-title {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--txt);
+}
+
+.upload-hint {
+  font-size: 11.5px;
+  color: var(--txt3);
+}
+
+.upload-remove {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  margin-top: 2px;
+  padding: 3px 9px;
+  border-radius: 999px;
+  border: none;
+  background: color-mix(in srgb, var(--danger) 10%, transparent);
+  color: var(--danger);
+  font-size: 11px;
+  font-weight: 600;
+  cursor: pointer;
+  align-self: flex-start;
+  max-width: 220px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+
+  &:hover {
+    background: color-mix(in srgb, var(--danger) 16%, transparent);
+  }
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.field-label {
+  font-size: 11.5px;
+  font-weight: 600;
+  color: var(--txt2);
+}
+
+.server-error {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 14px;
+  border-radius: 10px;
+  background: color-mix(in srgb, var(--danger) 8%, transparent);
+  color: var(--danger);
+  font-size: 12px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .guards-skeleton-row {
+    animation: none;
+  }
+}

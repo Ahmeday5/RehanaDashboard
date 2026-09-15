@@ -42,11 +42,11 @@ export const routes: Routes = [
     ],
   },
 
-  // Authenticated app shell — 10 real routes, matching the 10 sidebar-tappable
-  // leaf screens confirmed against `bar_cubit.dart` (spec §6.2/§6.5). Each
+  // Authenticated app shell — one route per list screen. "Add X" flows are
+  // modals launched from their list screen, not separate routes (confirmed
+  // UX decision) — see nav.constants.ts for the full rationale. Each
   // `loadComponent` is swapped from the shared placeholder to its real
-  // feature component as that feature's step lands — the route path itself
-  // does not change, so this map is final now.
+  // feature component as that feature's step lands.
   {
     path: '',
     canActivate: [authGuard],
@@ -57,31 +57,49 @@ export const routes: Routes = [
       ),
     children: [
       {
-        path: 'owners',
+        path: 'members',
         loadComponent: () =>
-          import('./features/owners/pages/all-owners/all-owners.component').then(
-            (m) => m.AllOwnersComponent,
+          import('./features/members/pages/all-members/all-members.component').then(
+            (m) => m.AllMembersComponent,
           ),
       },
       {
-        path: 'owners/new',
+        path: 'system-users',
         loadComponent: () =>
-          import('./features/owners/pages/add-owner/add-owner.component').then(
-            (m) => m.AddOwnerComponent,
+          import('./features/system-users/pages/all-system-users/all-system-users.component').then(
+            (m) => m.AllSystemUsersComponent,
           ),
       },
-      { path: 'security-guards', loadComponent: placeholder, data: { title: 'عرض حراس الأمن' } },
-      { path: 'security-guards/new', loadComponent: placeholder, data: { title: 'إضافة حارس أمن' } },
-      { path: 'system-users', loadComponent: placeholder, data: { title: 'عرض جميع المستخدمين' } },
-      { path: 'system-users/new', loadComponent: placeholder, data: { title: 'إضافة مستخدم' } },
+      {
+        path: 'security-guards',
+        loadComponent: () =>
+          import('./features/security-guards/pages/all-security-guards/all-security-guards.component').then(
+            (m) => m.AllSecurityGuardsComponent,
+          ),
+      },
       { path: 'accounts/receipts', loadComponent: placeholder, data: { title: 'سندات القبض' } },
       { path: 'accounts/disbursements', loadComponent: placeholder, data: { title: 'سندات الصرف' } },
       { path: 'accounts/bulk-disbursement', loadComponent: placeholder, data: { title: 'إدارة المصروفات' } },
       { path: 'collections', loadComponent: placeholder, data: { title: 'مقبوضات' } },
-      { path: 'chat', loadComponent: placeholder, data: { title: 'الدردشات' } },
-      { path: '', redirectTo: 'owners', pathMatch: 'full' },
+      {
+        path: 'chat',
+        data: { title: 'الدردشات' },
+        loadComponent: () =>
+          import('./features/chat/pages/chat-shell/chat-shell.component').then(
+            (m) => m.ChatShellComponent,
+          ),
+      },
+      {
+        path: 'chat/:contactId',
+        data: { title: 'الدردشات' },
+        loadComponent: () =>
+          import('./features/chat/pages/chat-shell/chat-shell.component').then(
+            (m) => m.ChatShellComponent,
+          ),
+      },
+      { path: '', redirectTo: 'members', pathMatch: 'full' },
     ],
   },
 
-  { path: '**', redirectTo: '/owners' },
+  { path: '**', redirectTo: '/members' },
 ];

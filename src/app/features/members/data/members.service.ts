@@ -1,33 +1,24 @@
 import { Injectable, inject, signal } from '@angular/core';
 import { firstValueFrom } from 'rxjs';
-import { OwnersApiService } from './owners-api.service';
-import { CreateOwnerRequest, Owner, UpdateOwnerRequest } from './owner.model';
+import { MembersApiService } from './members-api.service';
+import { CreateMemberRequest, Member, UpdateMemberRequest } from './member.model';
 import { RequestState, initialRequestState } from '../../../shared/data/request-state';
 import { ApiError } from '../../../core/models/api-response.model';
 import { apiErrorToMessage } from '../../../core/utils/api-error.util';
 
-/**
- * One signal-based service for the Owners feature — the spec §1.3 pattern,
- * replacing the Flutter app's `UserState` (17 hand-written subclasses,
- * spec §8) with a single `RequestState<Owner>`.
- */
+/** One signal-based service for the Members feature — spec §1.3 pattern. */
 @Injectable({ providedIn: 'root' })
-export class OwnersService {
-  private readonly api = inject(OwnersApiService);
+export class MembersService {
+  private readonly api = inject(MembersApiService);
 
-  private readonly stateSignal = signal<RequestState<Owner>>(initialRequestState<Owner>());
+  private readonly stateSignal = signal<RequestState<Member>>(initialRequestState<Member>());
   readonly state = this.stateSignal.asReadonly();
 
   async load(): Promise<void> {
     this.stateSignal.update((s) => ({ ...s, status: 'loading', errorMessage: null }));
     try {
-      const items = await firstValueFrom(this.api.getAllOwners());
-      this.stateSignal.update((s) => ({
-        ...s,
-        status: 'success',
-        items,
-        totalItems: items.length,
-      }));
+      const items = await firstValueFrom(this.api.getAll());
+      this.stateSignal.update((s) => ({ ...s, status: 'success', items, totalItems: items.length }));
     } catch (err) {
       this.stateSignal.update((s) => ({
         ...s,
@@ -37,14 +28,13 @@ export class OwnersService {
     }
   }
 
-  /** Throws on failure so the calling form can surface its own inline error — does not touch `state`. */
-  async create(payload: CreateOwnerRequest): Promise<Owner> {
+  async create(payload: CreateMemberRequest): Promise<Member> {
     const created = await firstValueFrom(this.api.create(payload));
     await this.load();
     return created;
   }
 
-  async update(payload: UpdateOwnerRequest): Promise<void> {
+  async update(payload: UpdateMemberRequest): Promise<void> {
     await firstValueFrom(this.api.update(payload));
     await this.load();
   }

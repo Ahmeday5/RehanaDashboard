@@ -1,0 +1,121 @@
+<div class="chat-shell">
+  <aside class="chat-list-panel" [class.chat-list-panel--hidden-mobile]="contactId()">
+    <header class="chat-list-header">
+      <h1 class="chat-list-title">الدردشات</h1>
+
+      <div class="chat-search">
+        <app-icon name="search" [size]="15" class="chat-search-icon" />
+        <input
+          type="text"
+          class="chat-search-input"
+          placeholder="بحث بالاسم..."
+          [value]="searchTerm()"
+          (input)="searchTerm.set($any($event.target).value)"
+        />
+      </div>
+    </header>
+
+    <div class="chat-list-body">
+      @if (contactsLoading()) {
+        <div class="chat-list-skeleton">
+          @for (i of [1, 2, 3, 4]; track i) {
+            <div class="chat-skeleton-row"></div>
+          }
+        </div>
+      } @else if (filteredContacts().length === 0) {
+        <app-empty-state
+          [message]="searchTerm() ? 'لا توجد نتائج مطابقة' : 'لا توجد محادثات بعد — ستظهر هنا فور أن يراسلك أحد الملاك أو المستأجرين'"
+        />
+      } @else {
+        @for (contact of filteredContacts(); track contact.id) {
+          <button
+            type="button"
+            class="chat-row"
+            [class.chat-row--active]="contact.otherUserId === contactId()"
+            (click)="openConversation(contact.otherUserId)"
+          >
+            <span class="chat-avatar">
+              @if (contact.otherUserProfilePic; as pic) {
+                <img [src]="pic" [alt]="contact.otherUserName" />
+              } @else {
+                {{ initial(contact.otherUserName) }}
+              }
+            </span>
+            <div class="chat-row-body">
+              <div class="chat-row-top">
+                <span class="chat-row-name">{{ contact.otherUserName }}</span>
+                <span class="chat-row-time">{{ formatTime(contact.lastMessageTime) }}</span>
+              </div>
+              <div class="chat-row-bottom">
+                <span class="chat-row-preview">{{ contact.lastMessage || 'بدء محادثة جديدة' }}</span>
+                @if (contact.unreadCount > 0) {
+                  <span class="chat-unread-badge">{{ contact.unreadCount }}</span>
+                }
+              </div>
+            </div>
+          </button>
+        }
+      }
+    </div>
+  </aside>
+
+  <section class="conv-panel" [class.conv-panel--hidden-mobile]="!contactId()">
+    @if (!contactId()) {
+      <div class="chat-placeholder">
+        <app-icon name="chat" [size]="40" class="chat-placeholder-icon" />
+        <p class="chat-placeholder-text">اختر محادثة من القائمة لبدء الدردشة</p>
+      </div>
+    } @else {
+      <header class="conv-header">
+        <button type="button" class="conv-back" (click)="closeConversation()">
+          <app-icon name="chevron-right" [size]="18" />
+        </button>
+        <span class="conv-avatar">
+          @if (activeContact()?.otherUserProfilePic; as pic) {
+            <img [src]="pic" [alt]="activeContact()?.otherUserName" />
+          } @else {
+            {{ initial(activeContact()?.otherUserName || contactId() || '') }}
+          }
+        </span>
+        <div class="conv-identity">
+          <span class="conv-name">{{ activeContact()?.otherUserName || contactId() }}</span>
+        </div>
+      </header>
+
+      <div class="conv-messages" #messagesList>
+        @if (messagesLoading()) {
+          <div class="conv-loading">
+            <div class="conv-spinner"></div>
+          </div>
+        } @else if (timeline().length === 0) {
+          <div class="conv-empty">
+            <app-icon name="chat" [size]="32" />
+            <p>لا توجد رسائل بعد</p>
+          </div>
+        } @else {
+          @for (msg of timeline(); track msg.id) {
+            <div class="conv-row" [class.conv-row--mine]="isMine(msg)">
+              <div class="conv-bubble" [class.conv-bubble--mine]="isMine(msg)">
+                <p class="conv-bubble-text">{{ msg.content }}</p>
+                <span class="conv-bubble-time">{{ formatTime(msg.timestamp) }}</span>
+              </div>
+            </div>
+          }
+        }
+      </div>
+
+      <form class="conv-composer" (ngSubmit)="send()" novalidate>
+        <input
+          type="text"
+          class="conv-input"
+          placeholder="اكتب رسالة..."
+          [value]="draft()"
+          (input)="draft.set($any($event.target).value)"
+        />
+        <button type="submit" class="conv-send-btn" [disabled]="!draft().trim()">
+          <app-icon name="send" [size]="16" />
+        </button>
+      </form>
+    }
+  </section>
+</div>

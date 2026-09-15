@@ -1,0 +1,241 @@
+/* ═══════ Member identity cell ═══════ */
+.member-cell {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  text-align: start;
+}
+
+.member-avatar {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 38px;
+  height: 38px;
+  border-radius: 11px;
+  background: linear-gradient(135deg, var(--primary-light) 0%, color-mix(in srgb, var(--primary) 20%, var(--bg2)) 100%);
+  color: var(--primary-dark);
+  overflow: hidden;
+  flex-shrink: 0;
+  box-shadow: 0 1px 2px rgba(20, 30, 15, 0.08);
+
+  img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+}
+
+.member-avatar-initial {
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.member-identity {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.member-name {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--txt);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.member-address {
+  font-size: 11px;
+  color: var(--txt3);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 200px;
+}
+
+/* ═══════ Member type badge ═══════ */
+.type-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 3px 10px;
+  border-radius: 999px;
+  background: var(--primary-light);
+  color: var(--primary-dark);
+  font-size: 11px;
+  font-weight: 700;
+
+  &--tenant {
+    background: color-mix(in srgb, var(--am, #854f0b) 12%, var(--bg2));
+    color: var(--am, #854f0b);
+  }
+
+  &--proxy {
+    background: color-mix(in srgb, var(--pu, #534ab7) 12%, var(--bg2));
+    color: var(--pu, #534ab7);
+  }
+}
+
+.row-actions {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+}
+
+/* ═══════ Loading skeleton ═══════ */
+.members-skeleton {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.members-skeleton-row {
+  height: 56px;
+  border-radius: 12px;
+  background: linear-gradient(90deg, var(--bg3) 25%, var(--brd) 50%, var(--bg3) 75%);
+  background-size: 200% 100%;
+  animation: skeleton-shimmer 1.4s ease-in-out infinite;
+}
+
+@keyframes skeleton-shimmer {
+  from { background-position: 200% 0; }
+  to   { background-position: -200% 0; }
+}
+
+.members-error {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 18px 20px;
+  border-radius: 14px;
+  background: color-mix(in srgb, var(--danger) 8%, transparent);
+  color: var(--danger);
+  font-size: 12.5px;
+}
+
+/* ═══════ Edit dialog — shared upload zone + form styling ═══════ */
+.upload-row {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 26px;
+  padding-bottom: 22px;
+  border-bottom: 1px solid var(--brd);
+}
+
+.image-upload {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 72px;
+  height: 72px;
+  border-radius: 18px;
+  border: 1.5px dashed var(--brd2);
+  background: var(--bg3);
+  color: var(--txt3);
+  cursor: pointer;
+  overflow: hidden;
+  flex-shrink: 0;
+  transition: border-color 0.15s, color 0.15s, transform 0.15s;
+
+  &:hover {
+    border-color: var(--primary);
+    color: var(--primary-dark);
+    transform: scale(1.02);
+  }
+
+  &--filled {
+    border-style: solid;
+    border-color: var(--primary);
+  }
+}
+
+.image-upload-preview {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.upload-copy {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.upload-title {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--txt);
+}
+
+.upload-hint {
+  font-size: 11.5px;
+  color: var(--txt3);
+}
+
+.upload-remove {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  margin-top: 2px;
+  padding: 3px 9px;
+  border-radius: 999px;
+  border: none;
+  background: color-mix(in srgb, var(--danger) 10%, transparent);
+  color: var(--danger);
+  font-size: 11px;
+  font-weight: 600;
+  cursor: pointer;
+  align-self: flex-start;
+  max-width: 220px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+
+  &:hover {
+    background: color-mix(in srgb, var(--danger) 16%, transparent);
+  }
+}
+
+.edit-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px 16px;
+
+  @media (max-width: 576px) {
+    grid-template-columns: 1fr;
+  }
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.field-label {
+  font-size: 11.5px;
+  font-weight: 600;
+  color: var(--txt2);
+}
+
+.server-error {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 14px;
+  border-radius: 10px;
+  background: color-mix(in srgb, var(--danger) 8%, transparent);
+  color: var(--danger);
+  font-size: 12px;
+  margin-top: 14px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .members-skeleton-row {
+    animation: none;
+  }
+}

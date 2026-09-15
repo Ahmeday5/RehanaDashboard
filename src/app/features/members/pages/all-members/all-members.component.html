@@ -1,0 +1,192 @@
+<div class="pgh">
+  <div>
+    <div class="pgt">كل الملاك</div>
+    <div class="pgs">إدارة بيانات ملاك وسكان الفيلات والشقق في المجمع</div>
+  </div>
+  <app-button (clicked)="openAddModal()">
+    <app-icon name="plus" [size]="15" />
+    إضافة مالك
+  </app-button>
+</div>
+
+@if (members.state().status === 'loading') {
+  <div class="members-skeleton">
+    @for (i of [1, 2, 3, 4, 5]; track i) {
+      <div class="members-skeleton-row"></div>
+    }
+  </div>
+} @else if (members.state().status === 'error') {
+  <div class="members-error">
+    <app-icon name="bell" [size]="20" />
+    <span>{{ members.state().errorMessage }}</span>
+    <app-button size="sm" variant="secondary" (clicked)="members.load()">إعادة المحاولة</app-button>
+  </div>
+} @else {
+  <ng-template #identityCell let-member>
+    <div class="member-cell">
+      <span class="member-avatar">
+        @if (resolveAvatar(member.pictureUrl); as url) {
+          <img [src]="url" [alt]="member.userName" />
+        } @else {
+          <span class="member-avatar-initial">{{ member.userName?.charAt(0) }}</span>
+        }
+      </span>
+      <div class="member-identity">
+        <span class="member-name">{{ member.userName }}</span>
+        <span class="member-address">{{ member.villaAddress || 'بدون عنوان' }}</span>
+      </div>
+    </div>
+  </ng-template>
+
+  <ng-template #typeCell let-member>
+    <span class="type-badge" [class.type-badge--tenant]="member.memberType === 'مستأجر'" [class.type-badge--proxy]="member.memberType === 'مفوض'">
+      {{ member.memberType || '—' }}
+    </span>
+  </ng-template>
+
+  <ng-template #rowActions let-member>
+    <div class="row-actions">
+      <app-button size="sm" variant="secondary" [iconOnly]="true" (clicked)="openEdit(member)" title="تعديل">
+        <app-icon name="edit" [size]="14" />
+      </app-button>
+      <app-button size="sm" variant="danger" [iconOnly]="true" (clicked)="confirmDelete(member)" title="حذف">
+        <app-icon name="trash" [size]="14" />
+      </app-button>
+    </div>
+  </ng-template>
+
+  <app-data-table
+    [columns]="[
+      { key: 'identity', label: 'المالك', align: 'right', width: '260px', cellTemplate: identityCell },
+      { key: 'villaNumber', label: 'رقم الفيلا', align: 'center' },
+      { key: 'memberType', label: 'نوع الساكن', align: 'center', cellTemplate: typeCell },
+      { key: 'phoneNumber', label: 'الهاتف', align: 'center' },
+      { key: 'email', label: 'البريد الإلكتروني', align: 'right' }
+    ]"
+    [data]="members.state().items"
+    trackByKey="id"
+    [hasActions]="true"
+    [actionsTemplate]="rowActions"
+    emptyMessage="لا يوجد ملاك بعد"
+    actionsLabel="الإجراء"
+  />
+}
+
+<!-- ═══════ Add Member — modal, launched from the button above ═══════ -->
+<app-add-member-modal (created)="onMemberCreated(); members.load()" />
+
+<!-- ═══════ Edit dialog ═══════ -->
+<app-modal [open]="isEditOpen()" title="تعديل بيانات المالك" size="lg" (closed)="closeEdit()">
+  <form class="edit-form" [formGroup]="editForm" (ngSubmit)="saveEdit()" novalidate>
+
+    <div class="upload-row">
+      <label
+        class="image-upload"
+        [class.image-upload--filled]="!!editDisplayImageUrl()"
+        (dragover)="$event.preventDefault()"
+        (drop)="onEditImageDrop($event)"
+      >
+        <input type="file" accept="image/*" (change)="onEditImageSelected($event)" hidden />
+        @if (editDisplayImageUrl(); as url) {
+          <img class="image-upload-preview" [src]="url" alt="صورة المالك" />
+        } @else {
+          <app-icon name="users" [size]="22" />
+        }
+      </label>
+      <div class="upload-copy">
+        <span class="upload-title">الصورة الشخصية</span>
+        <span class="upload-hint">اسحب صورة جديدة هنا أو اضغط للاستبدال</span>
+        @if (editSelectedImage(); as file) {
+          <button type="button" class="upload-remove" (click)="clearEditImage()">
+            <app-icon name="x" [size]="12" />
+            {{ file.name }}
+          </button>
+        }
+      </div>
+    </div>
+
+    <div class="edit-grid">
+      <div class="field">
+        <label class="field-label">الاسم</label>
+        <input class="form-control" formControlName="name" />
+        <app-form-error [control]="editForm.controls.name" label="الاسم" />
+      </div>
+
+      <div class="field">
+        <label class="field-label">البريد الإلكتروني</label>
+        <input class="form-control" type="email" formControlName="email" />
+        <app-form-error [control]="editForm.controls.email" label="البريد الإلكتروني" />
+      </div>
+
+      <div class="field">
+        <label class="field-label">كلمة السر (اتركها فارغة لعدم التغيير)</label>
+        <app-password-input formControlName="password" autocomplete="new-password" />
+      </div>
+
+      <div class="field">
+        <label class="field-label">رقم الهاتف</label>
+        <input class="form-control" formControlName="phoneNumber" />
+        <app-form-error [control]="editForm.controls.phoneNumber" label="رقم الهاتف" />
+      </div>
+
+      <div class="field">
+        <label class="field-label">رقم الفيلا</label>
+        <input class="form-control" formControlName="villaNumber" />
+        <app-form-error [control]="editForm.controls.villaNumber" label="رقم الفيلا" />
+      </div>
+
+      <div class="field">
+        <label class="field-label">نوع الساكن</label>
+        <select class="form-select" formControlName="memberType">
+          @for (t of memberTypes; track t) {
+            <option [value]="t">{{ t }}</option>
+          }
+        </select>
+      </div>
+
+      <div class="field">
+        <label class="field-label">مساحة الفيلا</label>
+        <input class="form-control" formControlName="villaSpace" />
+        <app-form-error [control]="editForm.controls.villaSpace" label="مساحة الفيلا" />
+      </div>
+
+      <div class="field">
+        <label class="field-label">حالة التشطيب</label>
+        <select class="form-select" formControlName="villaType">
+          @for (t of villaTypes; track t) {
+            <option [value]="t">{{ t }}</option>
+          }
+        </select>
+      </div>
+
+      <div class="field">
+        <label class="field-label">عنوان الفيلا</label>
+        <input class="form-control" formControlName="villaAddress" />
+        <app-form-error [control]="editForm.controls.villaAddress" label="عنوان الفيلا" />
+      </div>
+
+      <div class="field">
+        <label class="field-label">موقع الفيلا</label>
+        <input class="form-control" formControlName="villaLocation" />
+        <app-form-error [control]="editForm.controls.villaLocation" label="موقع الفيلا" />
+      </div>
+
+      <div class="field">
+        <label class="field-label">الشارع</label>
+        <input class="form-control" formControlName="villaStreet" />
+      </div>
+    </div>
+
+    @if (serverError(); as msg) {
+      <div class="server-error" role="alert">
+        <app-icon name="bell" [size]="15" />
+        <span>{{ msg }}</span>
+      </div>
+    }
+  </form>
+
+  <ng-container modal-footer>
+    <app-button variant="secondary" (clicked)="closeEdit()">إلغاء</app-button>
+    <app-button [loading]="isSaving()" (clicked)="saveEdit()">حفظ التعديلات</app-button>
+  </ng-container>
+</app-modal>

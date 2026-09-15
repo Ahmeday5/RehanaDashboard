@@ -1,4 +1,32 @@
 <nav class="sidebar" [class.collapsed]="layout.collapsed()" [class.open]="layout.mobileOpen()">
+  <div class="sidebar-glow" aria-hidden="true"></div>
+
+  <div class="sb-brand">
+    <span class="sb-brand-logo">
+      <img src="assets/img/logo.png" alt="" />
+    </span>
+    <span class="sb-brand-name">ريحانة</span>
+  </div>
+
+  <div class="sb-scroll">
+    <!-- Nav sections -->
+    @for (section of sections; track $index) {
+    @if (section.label) {
+    <div class="sb-sec">{{ section.label }}</div>
+    }
+
+    @for (item of section.items; track item.id) {
+    <a class="sbi" [routerLink]="item.route" routerLinkActive="on" [title]="layout.collapsed() ? item.label : ''"
+      (click)="layout.closeMobile()">
+      <span class="sbi-icon-wrap">
+        <app-icon class="sbi-icon" [name]="iconName(item)" [size]="16"></app-icon>
+      </span>
+      <span class="sbi-label">{{ item.label }}</span>
+    </a>
+    }
+    }
+  </div>
+
   <!-- Collapse toggle (desktop only) -->
   <button class="sb-toggle" (click)="layout.toggleCollapsed()"
     [title]="layout.collapsed() ? 'توسيع القائمة' : 'طي القائمة'">
@@ -8,19 +36,4 @@
     </svg>
     <span class="sb-toggle-label">طي القائمة</span>
   </button>
-
-  <!-- Nav sections -->
-  @for (section of sections; track $index) {
-  @if (section.label) {
-  <div class="sb-sec">{{ section.label }}</div>
-  }
-
-  @for (item of section.items; track item.id) {
-  <a class="sbi" [routerLink]="item.route" routerLinkActive="on" [title]="layout.collapsed() ? item.label : ''"
-    (click)="layout.closeMobile()">
-    <app-icon class="sbi-icon" [name]="iconName(item)" [size]="16"></app-icon>
-    <span class="sbi-label">{{ item.label }}</span>
-  </a>
-  }
-  }
 </nav>

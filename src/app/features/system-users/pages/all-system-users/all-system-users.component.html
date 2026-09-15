@@ -1,0 +1,118 @@
+<div class="pgh">
+  <div>
+    <div class="pgt">إدارة المستخدمين</div>
+    <div class="pgs">مستخدمو لوحة التحكم — المسؤولون ومديرو الحسابات</div>
+  </div>
+  <app-button (clicked)="openAddModal()">
+    <app-icon name="plus" [size]="15" />
+    إضافة مستخدم
+  </app-button>
+</div>
+
+@if (users.state().status === 'loading') {
+  <div class="users-skeleton">
+    @for (i of [1, 2, 3, 4, 5]; track i) {
+      <div class="users-skeleton-row"></div>
+    }
+  </div>
+} @else if (users.state().status === 'error') {
+  <div class="users-error">
+    <app-icon name="bell" [size]="20" />
+    <span>{{ users.state().errorMessage }}</span>
+    <app-button size="sm" variant="secondary" (clicked)="users.load()">إعادة المحاولة</app-button>
+  </div>
+} @else {
+  <ng-template #identityCell let-user>
+    <div class="user-cell">
+      <span class="user-avatar">{{ (user.fullName || user.email).charAt(0) }}</span>
+      <div class="user-identity">
+        <span class="user-name">{{ user.fullName || '—' }}</span>
+        <span class="user-role-badge" [class.user-role-badge--manager]="user.roles?.[0] === 'Account Manager'">
+          <app-icon [name]="user.roles?.[0] === 'Admin' ? 'shield' : 'user-cog'" [size]="11" />
+          {{ roleLabel(user) }}
+        </span>
+      </div>
+    </div>
+  </ng-template>
+
+  <ng-template #rowActions let-user>
+    <div class="row-actions">
+      <app-button size="sm" variant="secondary" [iconOnly]="true" (clicked)="openEdit(user)" title="تعديل">
+        <app-icon name="edit" [size]="14" />
+      </app-button>
+      <app-button size="sm" variant="danger" [iconOnly]="true" (clicked)="confirmDelete(user)" title="حذف">
+        <app-icon name="trash" [size]="14" />
+      </app-button>
+    </div>
+  </ng-template>
+
+  <app-data-table
+    [columns]="[
+      { key: 'identity', label: 'المستخدم', align: 'center', width: '280px', cellTemplate: identityCell },
+      { key: 'email', label: 'البريد الإلكتروني', align: 'center' },
+      { key: 'phoneNumber', label: 'رقم الهاتف', align: 'center' }
+    ]"
+    [data]="users.state().items"
+    trackByKey="id"
+    [hasActions]="true"
+    [actionsTemplate]="rowActions"
+    emptyMessage="لا يوجد مستخدمون بعد"
+    actionsLabel="الإجراء"
+  />
+}
+
+<!-- ═══════ Add System User — modal, launched from the button above ═══════ -->
+<app-add-system-user-modal (created)="onUserCreated(); users.load()" />
+
+<!-- ═══════ Edit dialog ═══════ -->
+<app-modal [open]="isEditOpen()" title="تعديل بيانات المستخدم" size="md" (closed)="closeEdit()">
+  <form class="edit-form" [formGroup]="editForm" (ngSubmit)="saveEdit()" novalidate>
+    <div class="field">
+      <label class="field-label">الاسم الكامل</label>
+      <input class="form-control" formControlName="fullName" />
+      <app-form-error [control]="editForm.controls.fullName" label="الاسم الكامل" />
+    </div>
+
+    <div class="field">
+      <label class="field-label">البريد الإلكتروني</label>
+      <input class="form-control" type="email" formControlName="email" />
+      <app-form-error [control]="editForm.controls.email" label="البريد الإلكتروني" />
+    </div>
+
+    <div class="field">
+      <label class="field-label">رقم الهاتف</label>
+      <input class="form-control" formControlName="phoneNumber" />
+      <app-form-error [control]="editForm.controls.phoneNumber" label="رقم الهاتف" />
+    </div>
+
+    <div class="field">
+      <label class="field-label">كلمة السر (اتركها فارغة لعدم التغيير)</label>
+      <app-password-input formControlName="password" autocomplete="new-password" />
+    </div>
+
+    <div class="field">
+      <label class="field-label">الصلاحية</label>
+      <div class="role-toggle">
+        @for (r of roles; track r) {
+          <label class="role-option" [class.role-option--active]="editForm.controls.role.value === r">
+            <input type="radio" [value]="r" formControlName="role" hidden />
+            <app-icon [name]="r === 'Admin' ? 'shield' : 'user-cog'" [size]="16" />
+            {{ r === 'Admin' ? 'مسؤول' : 'مدير حسابات' }}
+          </label>
+        }
+      </div>
+    </div>
+
+    @if (serverError(); as msg) {
+      <div class="server-error" role="alert">
+        <app-icon name="bell" [size]="15" />
+        <span>{{ msg }}</span>
+      </div>
+    }
+  </form>
+
+  <ng-container modal-footer>
+    <app-button variant="secondary" (clicked)="closeEdit()">إلغاء</app-button>
+    <app-button [loading]="isSaving()" (clicked)="saveEdit()">حفظ التعديلات</app-button>
+  </ng-container>
+</app-modal>

@@ -16,8 +16,11 @@ import {
   withFetch,
 } from '@angular/common/http';
 import { provideAnimationsAsync } from '@angular/platform-browser/animations/async';
+import { initializeApp, provideFirebaseApp } from '@angular/fire/app';
+import { getFirestore, provideFirestore } from '@angular/fire/firestore';
 
 import { routes } from './app.routes';
+import { environment } from '../environments/environment';
 import { authInterceptor } from './core/auth/interceptors/auth.interceptor';
 import { cacheInterceptor } from './core/interceptors/cache.interceptor';
 import { errorInterceptor } from './core/interceptors/error.interceptor';
@@ -55,5 +58,12 @@ export const appConfig: ApplicationConfig = {
       ]),
     ),
     provideAnimationsAsync(),
+
+    // Firestore — chat only (spec §4). No Firebase Auth: the Flutter app
+    // never signs in to Firebase either, chat access is unauthenticated at
+    // the client-SDK level. Do not add @angular/fire/auth without a
+    // confirmed custom-token flow from the .NET backend first.
+    provideFirebaseApp(() => initializeApp(environment.firebase)),
+    provideFirestore(() => getFirestore()),
   ],
 };

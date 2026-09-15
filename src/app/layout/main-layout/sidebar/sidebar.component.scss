@@ -1,96 +1,83 @@
 /* ════════════════════════════════
    SIDEBAR — desktop + mobile
+   Dark surface with a subtle green gradient wash (kept deliberately
+   light-touch per direction — this is a wash, not a saturated hero panel).
    ════════════════════════════════ */
 
-/* ── Sidebar shell ── */
 .sidebar {
-  --sb-width: 220px;
-  --sb-collapsed-width: 58px;
+  --sb-width: 240px;
+  --sb-collapsed-width: 64px;
   --sb-transition: 0.26s cubic-bezier(0.4, 0, 0.2, 1);
+  --sb-bg: #1a2314;
+  --sb-bg-2: #212c19;
+  --sb-border: rgba(255, 255, 255, 0.09);
+  --sb-text: rgba(255, 255, 255, 0.68);
+  --sb-text-strong: rgba(255, 255, 255, 0.95);
+  --sb-text-faint: rgba(255, 255, 255, 0.42);
 
+  position: relative;
   width: var(--sb-width);
   height: 100%;
-  background: var(--bg2);
-  border-inline-end: 1px solid var(--brd);
+  background: var(--sb-bg);
+  border-inline-end: 1px solid var(--sb-border);
   display: flex;
   flex-direction: column;
   flex-shrink: 0;
-  overflow-x: hidden;
-  overflow-y: auto;
+  overflow: hidden;
   transition: width var(--sb-transition);
-
-  scrollbar-width: thin;
-  scrollbar-color: transparent transparent;
-  &:hover {
-    scrollbar-color: var(--brd2) transparent;
-  }
-  &::-webkit-scrollbar {
-    width: 4px;
-  }
-  &::-webkit-scrollbar-track {
-    background: transparent;
-  }
-  &::-webkit-scrollbar-thumb {
-    background: transparent;
-    border-radius: 10px;
-    transition: background 0.2s;
-  }
-  &:hover::-webkit-scrollbar-thumb {
-    background: var(--brd2);
-  }
+  isolation: isolate;
 
   /* ── Desktop collapsed ── */
   &.collapsed {
     width: var(--sb-collapsed-width);
 
-    .sb-sec {
-      text-align: center;
-    }
+    .sb-brand-name,
+    .sb-sec,
     .sbi-label,
     .sb-toggle-label {
       display: none;
     }
+    .sb-brand {
+      justify-content: center;
+      padding-inline: 0;
+    }
     .sbi {
       justify-content: center;
-      padding: 10px 0;
+      margin-inline: 8px;
     }
     .sb-toggle {
       justify-content: center;
-      padding: 10px 0;
     }
-    .sb-toggle-icon {
-      &.flipped {
-        transform: rotate(180deg);
-      }
+    .sb-toggle-icon.flipped {
+      transform: rotate(180deg);
     }
   }
 
-  /* ── Mobile: hidden by default, slides in as drawer ── */
+  /* ── Mobile: hidden by default, slides in as drawer ──
+     Uses a physical `right` (not `inset-inline-start`) paired with a
+     physical `translateX`, deliberately — mixing a logical inset property
+     with a physical transform under dir="rtl" put the drawer at the wrong
+     edge and only partially off-screen (visually "stuck in the middle").
+     The document is RTL-only (spec: hard-locked to Arabic), so a physical
+     right-edge drawer is correct and unambiguous here. */
   @media (max-width: 991px) {
     position: fixed;
     top: 50px;
-    inset-inline-start: 0;
+    right: 0;
     bottom: 0;
-    width: 240px !important;
+    width: 260px !important;
     z-index: 1000;
     border-inline-end: none;
-    box-shadow: none;
-    transform: translateX(-102%);
-    transition:
-      transform var(--sb-transition),
-      box-shadow var(--sb-transition);
+    transform: translateX(102%);
+    transition: transform var(--sb-transition), box-shadow var(--sb-transition);
 
-    .sb-sec {
-      opacity: 1 !important;
-      pointer-events: auto !important;
-    }
+    .sb-brand-name,
+    .sb-sec,
     .sbi-label {
-      opacity: 1 !important;
-      width: auto !important;
+      display: flex !important;
     }
     .sbi {
       justify-content: flex-start !important;
-      padding: 9px 13px !important;
     }
     .sb-toggle {
       display: none;
@@ -98,34 +85,179 @@
 
     &.open {
       transform: translateX(0);
-      box-shadow: 6px 0 32px rgba(0, 0, 0, 0.16);
+      box-shadow: -10px 0 40px rgba(0, 0, 0, 0.4);
     }
   }
 }
 
-/* ── Collapse toggle button (desktop only) ── */
+/* ── Ambient gradient wash — subtle, not a hero panel ── */
+.sidebar-glow {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(130% 45% at 50% 0%, color-mix(in srgb, var(--primary) 22%, transparent) 0%, transparent 68%),
+    radial-gradient(90% 55% at 0% 100%, color-mix(in srgb, var(--primary-dark) 16%, transparent) 0%, transparent 72%);
+}
+
+/* ── Brand header ── */
+.sb-brand {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 18px 16px;
+  flex-shrink: 0;
+  border-bottom: 1px solid var(--sb-border);
+}
+
+.sb-brand-logo {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 9px;
+  background: rgba(255, 255, 255, 0.95);
+  flex-shrink: 0;
+
+  img {
+    width: 19px;
+    height: auto;
+    display: block;
+  }
+}
+
+.sb-brand-name {
+  font-family: var(--font-display);
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--sb-text-strong);
+  white-space: nowrap;
+}
+
+/* ── Scrollable nav area ── */
+.sb-scroll {
+  position: relative;
+  z-index: 1;
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding: 10px 0 8px;
+
+  scrollbar-width: thin;
+  scrollbar-color: transparent transparent;
+  &:hover {
+    scrollbar-color: rgba(255, 255, 255, 0.14) transparent;
+  }
+  &::-webkit-scrollbar {
+    width: 4px;
+  }
+  &::-webkit-scrollbar-thumb {
+    background: transparent;
+    border-radius: 10px;
+  }
+  &:hover::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.14);
+  }
+}
+
+/* ── Section label ── */
+.sb-sec {
+  padding: 16px 18px 6px;
+  font-size: 10px;
+  color: var(--sb-text-faint);
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  white-space: nowrap;
+
+  .sidebar > .sb-scroll > &:first-child {
+    padding-top: 6px;
+  }
+}
+
+/* ── Nav item ── */
+.sbi {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 2px 10px;
+  padding: 9px 10px;
+  border-radius: 9px;
+  font-size: 12.5px;
+  font-weight: 500;
+  cursor: pointer;
+  color: var(--sb-text);
+  text-decoration: none;
+  white-space: nowrap;
+  transition: background 0.14s, color 0.14s;
+
+  &:hover {
+    background: rgba(255, 255, 255, 0.06);
+    color: var(--sb-text-strong);
+  }
+
+  &.on {
+    background: linear-gradient(135deg, var(--primary-dark) 0%, color-mix(in srgb, var(--primary-deep) 85%, black) 100%);
+    color: #fff;
+    font-weight: 700;
+    box-shadow: 0 4px 16px -4px color-mix(in srgb, var(--primary) 70%, transparent), inset 0 1px 0 rgba(255, 255, 255, 0.12);
+
+    .sbi-icon-wrap {
+      background: rgba(255, 255, 255, 0.2);
+      color: #fff;
+    }
+  }
+}
+
+.sbi-icon-wrap {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 26px;
+  height: 26px;
+  border-radius: 7px;
+  background: rgba(255, 255, 255, 0.05);
+  color: inherit;
+  flex-shrink: 0;
+  transition: background 0.14s;
+}
+
+.sbi-label {
+  white-space: nowrap;
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* ── Collapse toggle (desktop only) ── */
 .sb-toggle {
+  position: relative;
+  z-index: 1;
   display: flex;
   align-items: center;
   gap: 8px;
-  padding: 9px 13px;
-  margin: 6px 8px 2px;
-  border: 1px solid var(--brd);
-  border-radius: var(--r);
+  padding: 10px 14px;
+  margin: 4px 10px 10px;
+  border: 1px solid var(--sb-border);
+  border-radius: 8px;
   background: transparent;
-  color: var(--txt3);
+  color: var(--sb-text-faint);
   font-family: inherit;
   font-size: 11px;
   cursor: pointer;
   white-space: nowrap;
   overflow: hidden;
-  transition:
-    background 0.12s,
-    color 0.12s;
+  flex-shrink: 0;
+  transition: background 0.14s, color 0.14s;
 
   &:hover {
-    background: var(--bg3);
-    color: var(--txt2);
+    background: rgba(255, 255, 255, 0.05);
+    color: var(--sb-text);
   }
 }
 
@@ -135,71 +267,4 @@
   &.flipped {
     transform: rotate(180deg);
   }
-}
-
-.sb-toggle-label {
-  overflow: hidden;
-  white-space: nowrap;
-  transition:
-    opacity 0.18s,
-    width 0.22s;
-}
-
-/* ── Section label ── */
-.sb-sec {
-  padding: 10px 14px 2px;
-  font-size: 9px;
-  color: var(--txt3);
-  font-weight: 700;
-  letter-spacing: 0.7px;
-  text-transform: uppercase;
-  white-space: nowrap;
-  overflow: hidden;
-  transition: opacity 0.18s;
-}
-
-/* ── Nav item ── */
-.sbi {
-  display: flex;
-  align-items: center;
-  gap: 9px;
-  padding: 9px 13px;
-  font-size: 12px;
-  cursor: pointer;
-  color: var(--txt2);
-  border-inline-start: 3px solid transparent;
-  transition:
-    background 0.12s,
-    color 0.12s,
-    padding 0.24s;
-  text-decoration: none;
-  white-space: nowrap;
-  overflow: hidden;
-
-  &:hover {
-    background: var(--bg3);
-    color: var(--txt);
-  }
-
-  &.on {
-    background: var(--primary-light);
-    color: var(--primary-dark);
-    border-inline-start-color: var(--primary);
-    font-weight: 600;
-  }
-}
-
-.sbi-icon {
-  flex-shrink: 0;
-  width: 16px;
-  text-align: center;
-  font-size: 14px;
-}
-
-.sbi-label {
-  white-space: nowrap;
-  flex: 1;
-  transition:
-    opacity 0.16s,
-    width 0.22s;
 }

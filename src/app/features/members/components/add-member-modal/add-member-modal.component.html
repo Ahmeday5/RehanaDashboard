@@ -1,18 +1,32 @@
-<div class="pgh">
-  <div>
-    <div class="pgt">اضافة مالك</div>
-    <div class="pgs">إدخال بيانات مالك جديد وربطه بفيلا في المجمع</div>
-  </div>
-  <a routerLink="/owners">
-    <app-button variant="secondary">
-      <app-icon name="grid" [size]="15" />
-      كل الملاك
-    </app-button>
-  </a>
-</div>
+<app-modal [open]="open()" title="إضافة مالك جديد" size="lg" (closed)="close()">
+  <form class="add-member-form" [formGroup]="form" (ngSubmit)="onSubmit()" novalidate>
 
-<div class="card add-owner-card">
-  <form [formGroup]="form" (ngSubmit)="onSubmit()" novalidate>
+    <div class="upload-row">
+      <label
+        class="image-upload"
+        [class.image-upload--filled]="!!imagePreviewUrl()"
+        (dragover)="$event.preventDefault()"
+        (drop)="onImageDrop($event)"
+      >
+        <input type="file" accept="image/*" (change)="onImageSelected($event)" hidden />
+        @if (imagePreviewUrl(); as url) {
+          <img class="image-upload-preview" [src]="url" alt="معاينة الصورة" />
+        } @else {
+          <app-icon name="users" [size]="22" />
+        }
+      </label>
+      <div class="upload-copy">
+        <span class="upload-title">الصورة الشخصية</span>
+        <span class="upload-hint">اختياري — اسحب صورة هنا أو اضغط للاختيار</span>
+        @if (selectedImage(); as file) {
+          <button type="button" class="upload-remove" (click)="clearImage()">
+            <app-icon name="x" [size]="12" />
+            {{ file.name }}
+          </button>
+        }
+      </div>
+    </div>
+
     <div class="section-title">بيانات المالك</div>
     <div class="form-grid">
       <div class="field">
@@ -37,6 +51,15 @@
         <label class="field-label">كلمة السر</label>
         <app-password-input formControlName="password" autocomplete="new-password" />
         <app-form-error [control]="form.controls.password" label="كلمة السر" />
+      </div>
+
+      <div class="field">
+        <label class="field-label">نوع الساكن</label>
+        <select class="form-select" formControlName="memberType">
+          @for (t of memberTypes; track t) {
+            <option [value]="t">{{ t }}</option>
+          }
+        </select>
       </div>
     </div>
 
@@ -63,7 +86,6 @@
       <div class="field">
         <label class="field-label">الشارع</label>
         <input class="form-control" formControlName="villaStreet" placeholder="اسم الشارع" />
-        <app-form-error [control]="form.controls.villaStreet" label="الشارع" />
       </div>
 
       <div class="field">
@@ -73,23 +95,14 @@
       </div>
 
       <div class="field">
-        <label class="field-label">عدد الأدوار</label>
-        <input class="form-control" formControlName="villaFloorsNumber" placeholder="مثال: 2" />
-        <app-form-error [control]="form.controls.villaFloorsNumber" label="عدد الأدوار" />
+        <label class="field-label">حالة التشطيب</label>
+        <select class="form-select" formControlName="villaType">
+          @for (t of villaTypes; track t) {
+            <option [value]="t">{{ t }}</option>
+          }
+        </select>
       </div>
     </div>
-
-    <div class="section-title">الصورة الشخصية (اختياري)</div>
-    <label class="image-upload">
-      <input type="file" accept="image/*" (change)="onImageSelected($event)" hidden />
-      @if (selectedImage(); as file) {
-        <app-icon name="users" [size]="16" />
-        <span>{{ file.name }}</span>
-      } @else {
-        <app-icon name="users" [size]="16" />
-        <span>اختر صورة</span>
-      }
-    </label>
 
     @if (serverError(); as msg) {
       <div class="server-error" role="alert">
@@ -97,12 +110,10 @@
         <span>{{ msg }}</span>
       </div>
     }
-
-    <div class="form-actions">
-      <app-button type="submit" [loading]="isSubmitting()">حفظ المالك</app-button>
-      <a routerLink="/owners">
-        <app-button type="button" variant="ghost">إلغاء</app-button>
-      </a>
-    </div>
   </form>
-</div>
+
+  <ng-container modal-footer>
+    <app-button variant="secondary" (clicked)="close()">إلغاء</app-button>
+    <app-button [loading]="isSubmitting()" (clicked)="onSubmit()">حفظ المالك</app-button>
+  </ng-container>
+</app-modal>

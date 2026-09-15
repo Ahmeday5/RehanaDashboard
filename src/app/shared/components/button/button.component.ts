@@ -29,6 +29,8 @@ export class ButtonComponent {
   readonly loading = input<boolean>(false);
   readonly disabled = input<boolean>(false);
   readonly fullWidth = input<boolean>(false);
+  /** Circular, padding-free variant for a single icon — e.g. table row actions. */
+  readonly iconOnly = input<boolean>(false);
 
   readonly clicked = output<MouseEvent>();
 

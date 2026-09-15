@@ -1,16 +1,14 @@
-import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
-import { RouterLink } from '@angular/router';
+import { ChangeDetectionStrategy, Component, computed, inject } from '@angular/core';
 import { AuthService } from '../../../core/auth/services/auth.service';
 import { LayoutService } from '../../../core/services/layout.service';
 import { DialogService } from '../../../core/services/dialog.service';
-import { environment } from '../../../../environments/environment';
-import { ButtonComponent } from '../../../shared/components/button/button.component';
+import { IconComponent } from '../../../shared/components/icon/icon.component';
 
 @Component({
   selector: 'app-topbar',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [RouterLink, ButtonComponent],
+  imports: [IconComponent],
   templateUrl: './topbar.component.html',
   styleUrl: './topbar.component.scss',
 })
@@ -19,8 +17,13 @@ export class TopbarComponent {
   protected readonly layout = inject(LayoutService);
   protected readonly dialog = inject(DialogService);
 
-  protected readonly appName = environment.appName;
   protected readonly currentUser = this.authService.currentUser;
+
+  protected readonly initials = computed(() => {
+    const name = this.currentUser()?.userName?.trim();
+    if (!name) return '؟';
+    return name.charAt(0).toUpperCase();
+  });
 
   logout(): void {
     this.dialog
