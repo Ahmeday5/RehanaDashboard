@@ -1,0 +1,7 @@
+<div class="empty-state">
+  <app-icon name="inbox" [size]="28" class="empty-state-icon" />
+  <p class="empty-state-message">{{ message() }}</p>
+  @if (actionLabel(); as label) {
+    <app-button size="sm" variant="secondary" (clicked)="action.emit()">{{ label }}</app-button>
+  }
+</div>

@@ -1,0 +1,137 @@
+<div class="pgh">
+  <div>
+    <div class="pgt">كل الملاك</div>
+    <div class="pgs">إدارة بيانات ملاك الفيلات في المجمع</div>
+  </div>
+  <a routerLink="/owners/new">
+    <app-button>
+      <app-icon name="users" [size]="15" />
+      إضافة مالك
+    </app-button>
+  </a>
+</div>
+
+@if (owners.state().status === 'loading') {
+  <div class="owners-skeleton">
+    @for (i of [1, 2, 3, 4, 5]; track i) {
+      <div class="owners-skeleton-row"></div>
+    }
+  </div>
+} @else if (owners.state().status === 'error') {
+  <div class="owners-error">
+    <app-icon name="bell" [size]="20" />
+    <span>{{ owners.state().errorMessage }}</span>
+    <app-button size="sm" variant="secondary" (clicked)="owners.load()">إعادة المحاولة</app-button>
+  </div>
+} @else {
+  <ng-template #avatarCell let-owner>
+    <span class="owner-avatar">
+      @if (resolveAvatar(owner.pictureUrl); as url) {
+        <img [src]="url" [alt]="owner.userName" />
+      } @else {
+        <app-icon name="users" [size]="15" />
+      }
+    </span>
+  </ng-template>
+
+  <ng-template #rowActions let-owner>
+    <div class="row-actions">
+      <app-button size="sm" variant="secondary" (clicked)="openEdit(owner)">
+        <app-icon name="edit" [size]="14" />
+      </app-button>
+      <app-button size="sm" variant="danger" (clicked)="confirmDelete(owner)">
+        <app-icon name="trash" [size]="14" />
+      </app-button>
+    </div>
+  </ng-template>
+
+  <app-data-table
+    [columns]="columns()"
+    [data]="owners.state().items"
+    trackByKey="id"
+    [hasActions]="true"
+    [actionsTemplate]="rowActions"
+    emptyMessage="لا يوجد ملاك بعد"
+    actionsLabel="الإجراء"
+  />
+}
+
+<!-- ═══════ Edit dialog — Reactive Forms built once, never re-created on rebuild
+     (spec §10 issue 5: the Flutter dialog rebuilds 10 TextEditingControllers
+     inside build() on every state change, silently discarding in-progress edits) ═══════ -->
+<app-modal [open]="isEditOpen()" title="تعديل بيانات المالك" size="lg" (closed)="closeEdit()">
+  <form class="edit-form" [formGroup]="editForm" (ngSubmit)="saveEdit()" novalidate>
+    <div class="edit-grid">
+      <div class="field">
+        <label class="field-label">الاسم</label>
+        <input class="form-control" formControlName="name" />
+        <app-form-error [control]="editForm.controls.name" label="الاسم" />
+      </div>
+
+      <div class="field">
+        <label class="field-label">البريد الإلكتروني</label>
+        <input class="form-control" type="email" formControlName="email" />
+        <app-form-error [control]="editForm.controls.email" label="البريد الإلكتروني" />
+      </div>
+
+      <div class="field">
+        <label class="field-label">كلمة السر (اتركها فارغة لعدم التغيير)</label>
+        <app-password-input formControlName="password" autocomplete="new-password" />
+      </div>
+
+      <div class="field">
+        <label class="field-label">رقم الهاتف</label>
+        <input class="form-control" formControlName="phoneNumber" />
+        <app-form-error [control]="editForm.controls.phoneNumber" label="رقم الهاتف" />
+      </div>
+
+      <div class="field">
+        <label class="field-label">رقم الفيلا</label>
+        <input class="form-control" formControlName="villaNumber" />
+        <app-form-error [control]="editForm.controls.villaNumber" label="رقم الفيلا" />
+      </div>
+
+      <div class="field">
+        <label class="field-label">مساحة الفيلا</label>
+        <input class="form-control" formControlName="villaSpace" />
+        <app-form-error [control]="editForm.controls.villaSpace" label="مساحة الفيلا" />
+      </div>
+
+      <div class="field">
+        <label class="field-label">عنوان الفيلا</label>
+        <input class="form-control" formControlName="villaAddress" />
+        <app-form-error [control]="editForm.controls.villaAddress" label="عنوان الفيلا" />
+      </div>
+
+      <div class="field">
+        <label class="field-label">موقع الفيلا</label>
+        <input class="form-control" formControlName="villaLocation" />
+        <app-form-error [control]="editForm.controls.villaLocation" label="موقع الفيلا" />
+      </div>
+
+      <div class="field">
+        <label class="field-label">الشارع</label>
+        <input class="form-control" formControlName="villaStreet" />
+        <app-form-error [control]="editForm.controls.villaStreet" label="الشارع" />
+      </div>
+
+      <div class="field">
+        <label class="field-label">عدد الأدوار</label>
+        <input class="form-control" formControlName="villaFloorsNumber" />
+        <app-form-error [control]="editForm.controls.villaFloorsNumber" label="عدد الأدوار" />
+      </div>
+    </div>
+
+    @if (serverError(); as msg) {
+      <div class="server-error" role="alert">
+        <app-icon name="bell" [size]="15" />
+        <span>{{ msg }}</span>
+      </div>
+    }
+  </form>
+
+  <ng-container modal-footer>
+    <app-button variant="secondary" (clicked)="closeEdit()">إلغاء</app-button>
+    <app-button [loading]="isSaving()" (clicked)="saveEdit()">حفظ التعديلات</app-button>
+  </ng-container>
+</app-modal>

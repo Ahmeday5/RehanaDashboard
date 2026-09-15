@@ -1,0 +1,28 @@
+<header class="topbar">
+
+  <!-- Mobile: hamburger to open sidebar drawer -->
+  <button class="t-hamburger" (click)="layout.toggleMobile()" aria-label="Menu">
+    @if (layout.mobileOpen()) {
+    <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
+      <path d="M3 3l12 12M15 3L3 15" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" />
+    </svg>
+    } @else {
+    <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
+      <path d="M2 5h14M2 9h14M2 13h14" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" />
+    </svg>
+    }
+  </button>
+
+  <!-- Logo / app name -->
+  <a class="logo" routerLink="/owners">
+    <span class="logo-text">{{ appName }}</span>
+  </a>
+
+  <div class="tright">
+    <span class="tname">{{ currentUser()?.userName }}</span>
+
+    <!-- Logout -->
+    <app-button variant="secondary" size="sm" (clicked)="logout()">تسجيل خروج</app-button>
+  </div>
+
+</header>

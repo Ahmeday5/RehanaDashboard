@@ -1,0 +1,18 @@
+<app-modal
+  [open]="isOpen()"
+  [title]="config().title"
+  size="sm"
+  [titleColorClass]="titleClass()"
+  (closed)="cancel()"
+>
+  <p class="cd-message">{{ config().message }}</p>
+
+  <ng-container modal-footer>
+    <app-button variant="secondary" (clicked)="cancel()">
+      {{ config().cancelText }}
+    </app-button>
+    <app-button [variant]="confirmVariant()" (clicked)="confirm()">
+      {{ config().confirmText }}
+    </app-button>
+  </ng-container>
+</app-modal>

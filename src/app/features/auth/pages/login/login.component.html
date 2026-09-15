@@ -1,0 +1,113 @@
+<div class="login-screen">
+
+  <!-- ═══════ Form panel — physical LEFT, the actual task ═══════ -->
+  <section class="form-panel">
+    <div class="form-shell">
+
+      <div class="brand-mark">
+        <span class="brand-mark-chip">
+          <img src="assets/img/logo.png" alt="" />
+        </span>
+        <span class="brand-mark-name">ريحانة</span>
+      </div>
+
+      <header class="form-header">
+        <h1 class="form-title">تسجيل الدخول</h1>
+        <p class="form-subtitle">مرحباً بعودتك، من فضلك أدخل بيانات حسابك للمتابعة</p>
+      </header>
+
+      <form class="login-form" [formGroup]="form" (ngSubmit)="onSubmit()" novalidate>
+        <div class="field" [class.field--filled]="!!form.controls.email.value">
+          <label class="field-label" for="login-email">البريد الإلكتروني</label>
+          <div class="field-control">
+            <input
+              id="login-email"
+              type="email"
+              formControlName="email"
+              autocomplete="email"
+              placeholder="name@example.com"
+              [class.is-invalid]="isInvalid('email')"
+              [attr.aria-invalid]="isInvalid('email') || null"
+            />
+            <app-icon name="mail" [size]="17" class="field-icon" />
+          </div>
+          <app-form-error [control]="form.controls.email" label="البريد الإلكتروني" />
+        </div>
+
+        <div class="field" [class.field--filled]="!!form.controls.password.value">
+          <div class="field-label-row">
+            <label class="field-label">كلمة السر</label>
+            <a routerLink="/auth/forgot-password" class="forgot-link">هل نسيت كلمة السر؟</a>
+          </div>
+          <div class="field-control field-control--password">
+            <app-password-input formControlName="password" autocomplete="current-password" />
+          </div>
+          <app-form-error [control]="form.controls.password" label="كلمة السر" />
+        </div>
+
+        @if (serverError(); as msg) {
+          <div class="server-error" role="alert">
+            <app-icon name="bell" [size]="15" />
+            <span>{{ msg }}</span>
+          </div>
+        }
+
+        <app-button type="submit" size="md" [fullWidth]="true" [loading]="isSubmitting()">
+          {{ isSubmitting() ? 'جاري تسجيل الدخول...' : 'تسجيل الدخول' }}
+        </app-button>
+      </form>
+
+      <p class="form-footnote">
+        محتاج مساعدة؟ تواصل مع مسؤول النظام في مجمعك.
+      </p>
+    </div>
+  </section>
+
+  <!-- ═══════ Showcase panel — physical RIGHT, light with green accents ═══════ -->
+  <section class="showcase" aria-hidden="true">
+    <svg class="showcase-leaf" viewBox="0 0 420 420" fill="none">
+      <path class="leaf-path leaf-path--1"
+        d="M210 40C130 90 90 170 110 250c14 56 60 96 110 108" />
+      <path class="leaf-path leaf-path--2"
+        d="M210 40c80 50 120 130 100 210-14 56-60 96-110 108" />
+    </svg>
+
+    <div class="showcase-content">
+      <span class="showcase-eyebrow">لوحة إدارة المجمع السكني</span>
+      <h2 class="showcase-headline">
+        كل ما يخص<br />
+        <span class="showcase-headline-accent">مجمعك</span>&nbsp;في مكان واحد
+      </h2>
+      <p class="showcase-copy">
+        الملاك، الأمن، الحسابات، والتواصل — منصة واحدة مبنية حول الدقة والسرعة والوضوح.
+      </p>
+
+      <div class="showcase-card">
+        <div class="showcase-card-row">
+          <span class="showcase-dot"></span>
+          <span>سندات القبض والصرف مُحدّثة لحظياً</span>
+        </div>
+        <div class="showcase-card-row">
+          <span class="showcase-dot"></span>
+          <span>تواصل مباشر بين الإدارة والملاك</span>
+        </div>
+        <div class="showcase-card-row">
+          <span class="showcase-dot"></span>
+          <span>إدارة كاملة لحراس الأمن والزيارات</span>
+        </div>
+      </div>
+
+      <div class="showcase-stats">
+        <div class="showcase-stat">
+          <span class="showcase-stat-value">10+</span>
+          <span class="showcase-stat-label">أقسام إدارية</span>
+        </div>
+        <div class="showcase-stat-sep"></div>
+        <div class="showcase-stat">
+          <span class="showcase-stat-value">24/7</span>
+          <span class="showcase-stat-label">متابعة حية</span>
+        </div>
+      </div>
+    </div>
+  </section>
+</div>

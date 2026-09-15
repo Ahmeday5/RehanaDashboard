@@ -1,0 +1,16 @@
+{
+  "permissions": {
+    "allow": [
+      "Read(//f//**)",
+      "Bash(ls -la \"/f/\" 2>/dev/null)",
+      "Bash(find \"/f/Dashboards/lib/lib\" -iname \"*.dart\" | grep -v __MACOSX | wc -l *)",
+      "Bash(rm -f core/auth/utils/jwt.util.ts core/auth/services/device.service.ts)",
+      "Bash(rmdir core/auth/utils)",
+      "Bash(find \"C:/Users/HP/AppData/Local/Temp/claude\" -iname \"*.png\" -newer \"/f/Dashboards/RehanaDashboard/package.json\" 2>/dev/null | head -20)",
+      "Read(//c/Users/HP/AppData/Local/Temp/claude/**)"
+    ],
+    "additionalDirectories": [
+      "\\tmp"
+    ]
+  }
+}
