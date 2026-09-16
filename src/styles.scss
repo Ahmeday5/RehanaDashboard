@@ -316,6 +316,7 @@ body {
 
 /* ── TABLE WRAPPER (data-table + direct usage in pages) ── */
 .tw {
+  position: relative;
   border: 1px solid var(--brd);
   border-radius: var(--rl);
   overflow: hidden;
@@ -325,6 +326,16 @@ body {
   margin-bottom: 11px;
   background: var(--bg2);
   box-shadow: 0 1px 2px rgba(20, 30, 15, 0.04);
+
+  /* ── Re-filtering/re-paginating an already-loaded table (app-data-table [refreshing]) ──
+     Deliberately NOT the full-page loader: existing rows stay visible (just
+     dimmed) and interaction is suspended only within this table, so
+     changing a filter never freezes the rest of the screen. */
+  &--refreshing tbody {
+    opacity: 0.45;
+    pointer-events: none;
+    transition: opacity 0.15s ease-out;
+  }
 
   table {
     font-size: 12.5px;
@@ -350,7 +361,7 @@ body {
       text-transform: uppercase;
     }
     tbody td {
-      padding: 13px 16px;
+      padding: 7px;
       border-bottom: 1px solid color-mix(in srgb, var(--brd) 60%, transparent);
       vertical-align: middle;
       text-align: center;
@@ -383,7 +394,105 @@ body {
     tbody tr:hover td {
       background: var(--primary-light);
     }
+
+    /* ── Expandable rows (app-data-table [expandable]) ── */
+    tr.tw-row--expanded td {
+      background: var(--primary-light);
+      border-bottom-color: transparent;
+    }
+    .tw-expand-cell {
+      width: 120px;
+      padding: 6px !important;
+    }
+    .tw-expand-toggle {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      width: 100%;
+      height: 30px;
+      padding-inline: 10px;
+      border-radius: 8px;
+      border: 1px solid var(--brd2);
+      background: var(--bg2);
+      color: var(--txt2);
+      font-family: var(--font-base);
+      font-size: 11px;
+      font-weight: 700;
+      cursor: pointer;
+      white-space: nowrap;
+      transition: background 0.14s, border-color 0.14s, color 0.14s;
+
+      svg {
+        transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+      }
+
+      &:hover {
+        border-color: var(--primary);
+        color: var(--primary-dark);
+        background: var(--primary-light);
+      }
+
+      &--open {
+        border-color: var(--primary);
+        background: var(--primary-light);
+        color: var(--primary-dark);
+
+        svg {
+          transform: rotate(180deg);
+        }
+      }
+    }
+    tr.tw-expand-row {
+      animation: none;
+
+      &:hover {
+        transform: none;
+        box-shadow: none;
+      }
+
+      td {
+        padding: 0;
+        background: color-mix(in srgb, var(--bg3) 60%, transparent);
+        border-bottom: 1px solid color-mix(in srgb, var(--brd) 60%, transparent);
+        white-space: normal;
+      }
+    }
   }
+}
+
+.tw-progress {
+  position: absolute;
+  top: 0;
+  inset-inline: 0;
+  height: 2.5px;
+  z-index: 2;
+  overflow: hidden;
+  background: color-mix(in srgb, var(--primary) 12%, transparent);
+
+  &::after {
+    content: '';
+    position: absolute;
+    inset-block: 0;
+    width: 40%;
+    background: linear-gradient(90deg, transparent, var(--primary) 35%, var(--primary-dark) 65%, transparent);
+    animation: tw-progress-sweep 1.1s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+  }
+}
+
+@keyframes tw-progress-sweep {
+  0%   { transform: translateX(-100%); }
+  100% { transform: translateX(250%); }
+}
+
+.tw-expand-panel {
+  padding: 14px 20px;
+  animation: expand-panel-in 0.2s cubic-bezier(0.16, 1, 0.3, 1) backwards;
+}
+
+@keyframes expand-panel-in {
+  from { opacity: 0; transform: translateY(-4px); }
+  to   { opacity: 1; transform: translateY(0); }
 }
 
 @keyframes row-rise {
@@ -392,8 +501,12 @@ body {
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .tw table tbody tr {
+  .tw table tbody tr,
+  .tw-expand-panel,
+  .tw-expand-toggle,
+  .tw-progress::after {
     animation: none;
+    transition: none;
   }
 }
 
@@ -428,6 +541,12 @@ body {
   margin-bottom: 20px;
   flex-wrap: wrap;
   gap: 12px;
+}
+.pgh-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
 }
 .pgt {
   font-family: var(--font-display);

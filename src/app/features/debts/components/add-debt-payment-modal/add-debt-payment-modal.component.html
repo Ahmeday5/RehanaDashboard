@@ -1,0 +1,67 @@
+<app-modal [open]="open()" title="دفع مديونية" size="sm" (closed)="close()">
+  <form class="pay-form" [formGroup]="form" (ngSubmit)="onSubmit()" novalidate>
+    <div class="field">
+      <label class="field-label">الفيلا</label>
+      <app-villa-select formControlName="villaNumber" placeholder="اختر فيلا..." />
+      <app-form-error [control]="form.controls.villaNumber" label="الفيلا" />
+    </div>
+
+    @if (balance().status === 'loading') {
+      <div class="balance-card balance-card--loading">
+        <span class="balance-spinner"></span>
+        جارِ حساب المديونية المستحقة...
+      </div>
+    } @else if (balance().status === 'error') {
+      <div class="balance-card balance-card--error">
+        <app-icon name="bell" [size]="14" />
+        تعذّر حساب المديونية المستحقة
+      </div>
+    } @else if (balance().status === 'loaded') {
+      <div
+        class="balance-card"
+        [class.balance-card--owing]="balanceAmount() > 0"
+        [class.balance-card--credit]="balanceAmount() < 0"
+        [class.balance-card--settled]="balanceAmount() === 0"
+      >
+        <app-icon [name]="balanceAmount() > 0 ? 'trending-down' : balanceAmount() < 0 ? 'trending-up' : 'check'" [size]="16" />
+        <div class="balance-copy">
+          <span class="balance-label">
+            @if (balanceAmount() > 0) { المستحق على هذه الفيلا }
+            @else if (balanceAmount() < 0) { رصيد دائن لهذه الفيلا }
+            @else { لا يوجد مستحق على هذه الفيلا }
+          </span>
+          @if (balanceAmount() !== 0) {
+            <span class="balance-amount">{{ (balanceAmount() > 0 ? balanceAmount() : -balanceAmount()) | number: '1.0-2' }} ج.م</span>
+          }
+        </div>
+      </div>
+    }
+
+    <div class="field">
+      <label class="field-label">المبلغ المدفوع</label>
+      <input class="form-control" formControlName="amount" placeholder="مثال: 200" inputmode="decimal" />
+      <app-form-error [control]="form.controls.amount" label="المبلغ" />
+    </div>
+
+    <div class="field">
+      <label class="field-label">ملاحظات</label>
+      <input class="form-control" formControlName="notes" placeholder="مثال: دفعة نقدية" />
+      <app-form-error [control]="form.controls.notes" label="الملاحظات" />
+    </div>
+
+    @if (serverError(); as msg) {
+      <div class="server-error" role="alert">
+        <app-icon name="bell" [size]="15" />
+        <span>{{ msg }}</span>
+      </div>
+    }
+  </form>
+
+  <ng-container modal-footer>
+    <app-button variant="secondary" (clicked)="close()">إلغاء</app-button>
+    <app-button [loading]="isSubmitting()" (clicked)="onSubmit()">
+      <app-icon name="banknote" [size]="14" />
+      تسجيل الدفعة
+    </app-button>
+  </ng-container>
+</app-modal>

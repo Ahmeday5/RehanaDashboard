@@ -1,0 +1,67 @@
+<div class="vs-shell" [class.vs-shell--open]="isOpen()" [class.vs-shell--invalid]="isInvalid()" [class.vs-shell--disabled]="disabled()">
+  <button
+    type="button"
+    class="vs-trigger"
+    [disabled]="disabled()"
+    (click)="isOpen() ? close() : open()"
+    (keydown)="onKeydown($event)"
+  >
+    <app-icon name="building" [size]="15" class="vs-trigger-icon" />
+
+    @if (isOpen()) {
+      <input
+        type="text"
+        class="vs-search-input"
+        [value]="query()"
+        [placeholder]="(selected() ? displayValue(selected()!) : '') || placeholder()"
+        (input)="onQueryInput($any($event.target).value)"
+        (click)="$event.stopPropagation()"
+        #searchInput
+      />
+    } @else if (selected()) {
+      <span class="vs-value">
+        <strong>{{ displayValue(selected()!) }}</strong>
+        @if (displaySubtext(selected()!)) {
+          <span class="vs-value-member">{{ displaySubtext(selected()!) }}</span>
+        }
+      </span>
+    } @else {
+      <span class="vs-placeholder">{{ placeholder() }}</span>
+    }
+
+    @if (clearable() && selected() && !isOpen()) {
+      <span class="vs-clear" (click)="clear($event)">
+        <app-icon name="x" [size]="13" />
+      </span>
+    }
+
+    <app-icon name="chevron-down" [size]="14" class="vs-chevron" />
+  </button>
+
+  @if (isOpen()) {
+    <div class="vs-panel" role="listbox">
+      @if (isLoading()) {
+        <div class="vs-panel-state">
+          <span class="vs-spinner"></span>
+          جارِ البحث...
+        </div>
+      } @else if (options().length === 0) {
+        <div class="vs-panel-state">{{ emitField() === 'memberName' ? 'لا يوجد ملاك مطابقون' : 'لا توجد فيلل مطابقة' }}</div>
+      } @else {
+        @for (entry of options(); track entry.villaNumber; let i = $index) {
+          <button
+            type="button"
+            class="vs-option"
+            [class.vs-option--active]="i === activeIndex()"
+            [class.vs-option--selected]="entry[emitField()] === (selected() ? selected()![emitField()] : null)"
+            (mouseenter)="activeIndex.set(i)"
+            (click)="selectEntry(entry)"
+          >
+            <span class="vs-option-villa">فيلا {{ entry.villaNumber }}</span>
+            <span class="vs-option-member">{{ entry.memberName }}</span>
+          </button>
+        }
+      }
+    </div>
+  }
+</div>

@@ -1,0 +1,14 @@
+<button
+  type="button"
+  class="refresh-btn"
+  [class.refresh-btn--loading]="loading()"
+  [class.refresh-btn--done]="justCompleted()"
+  [disabled]="loading()"
+  [attr.aria-busy]="loading()"
+  (click)="onClick()"
+>
+  <span class="refresh-btn-icon">
+    <app-icon name="refresh" [size]="14" />
+  </span>
+  <span class="refresh-btn-label">{{ loading() ? 'جارِ التحديث...' : label() }}</span>
+</button>

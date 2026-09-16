@@ -1,0 +1,106 @@
+<div class="pgh">
+  <div>
+    <div class="pgt">دعوات حراس الأمن</div>
+    <div class="pgs">دعوات الزوار التي أنشأها حراس الأمن للفيلل</div>
+  </div>
+  <div class="pgh-actions">
+    <app-refresh-button [loading]="isRefreshing()" (refresh)="refresh()" />
+  </div>
+</div>
+
+<form class="filter-bar" [formGroup]="filterForm" novalidate>
+  <div class="filter-select">
+    <app-guard-select formControlName="securityId" placeholder="اختر حارس أمن..." />
+  </div>
+
+  <div class="status-toggle">
+    @for (opt of statusOptions; track opt.label) {
+      <button
+        type="button"
+        class="status-toggle-btn"
+        [class.status-toggle-btn--active]="activeStatus() === opt.value"
+        (click)="setStatus(opt.value)"
+      >
+        {{ opt.label }}
+      </button>
+    }
+  </div>
+
+  <div class="filter-field filter-field--date">
+    <app-icon name="calendar" [size]="13" class="filter-icon" />
+    <input class="filter-input" type="date" formControlName="fromDate" appDatePickerAnywhere />
+  </div>
+  <div class="filter-field filter-field--date">
+    <app-icon name="calendar" [size]="13" class="filter-icon" />
+    <input class="filter-input" type="date" formControlName="toDate" appDatePickerAnywhere />
+  </div>
+
+  @if (hasActiveFilters()) {
+    <button type="button" class="filter-clear" (click)="resetFilters()">
+      <app-icon name="x" [size]="13" />
+      مسح الفلاتر
+    </button>
+  }
+</form>
+
+@if (service.state().status === 'loading' && service.state().items.length === 0) {
+  <div class="inv-skeleton">
+    @for (i of [1, 2, 3, 4, 5]; track i) {
+      <div class="inv-skeleton-row"></div>
+    }
+  </div>
+} @else if (service.state().status === 'error') {
+  <div class="inv-error">
+    <app-icon name="bell" [size]="20" />
+    <span>{{ service.state().errorMessage }}</span>
+    <app-button size="sm" variant="secondary" (clicked)="service.load()">إعادة المحاولة</app-button>
+  </div>
+} @else {
+  <ng-template #guardCell let-inv>
+    <div class="guard-cell">
+      <span class="guard-avatar">{{ inv.securityGuardName?.trim()?.charAt(0) || '؟' }}</span>
+      <span class="guard-name">{{ inv.securityGuardName }}</span>
+    </div>
+  </ng-template>
+
+  <ng-template #memberCell let-inv>
+    <span>{{ inv.memberName || '—' }}</span>
+  </ng-template>
+
+  <ng-template #visitTimeCell let-inv>
+    <span class="time-value">{{ formatDateTime(inv.visitTime) }}</span>
+  </ng-template>
+
+  <ng-template #statusCell let-inv>
+    <span class="status-badge" [class.status-badge--active]="inv.status === 'Active'" [class.status-badge--expired]="inv.status === 'Expired'">
+      <span class="status-dot"></span>
+      {{ statusLabel(inv.status) }}
+    </span>
+  </ng-template>
+
+  <app-data-table
+    [columns]="[
+      { key: 'securityGuardName', label: 'الحارس', align: 'center', cellTemplate: guardCell },
+      { key: 'villaNumber', label: 'الفيلا', align: 'center' },
+      { key: 'memberName', label: 'المالك', align: 'right', cellTemplate: memberCell },
+      { key: 'visitorName', label: 'الزائر', align: 'right' },
+      { key: 'carPlateNumber', label: 'رقم السيارة', align: 'center' },
+      { key: 'visitTime', label: 'موعد الزيارة', align: 'center', cellTemplate: visitTimeCell },
+      { key: 'status', label: 'الحالة', align: 'center', cellTemplate: statusCell }
+    ]"
+    [data]="service.state().items"
+    trackByKey="id"
+    [refreshing]="service.state().status === 'loading' && service.state().items.length > 0"
+    emptyMessage="لا توجد دعوات مطابقة"
+  />
+
+  <app-pagination
+    [pageIndex]="service.state().page"
+    [pageSize]="service.state().pageSize"
+    [count]="service.state().totalItems"
+    [totalPages]="service.state().totalPages"
+    [disabled]="service.state().status === 'loading'"
+    (pageChange)="service.load($event)"
+    (pageSizeChange)="service.load(1, $event)"
+  />
+}

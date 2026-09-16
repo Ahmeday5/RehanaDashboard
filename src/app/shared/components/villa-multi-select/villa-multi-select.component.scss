@@ -1,0 +1,184 @@
+:host {
+  display: block;
+  position: relative;
+}
+
+.vms-shell {
+  position: relative;
+}
+
+.vms-trigger {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+  width: 100%;
+  min-height: 42px;
+  padding: 6px 10px;
+  border-radius: 10px;
+  border: 1.5px solid var(--brd2);
+  background: var(--bg2);
+  cursor: text;
+  transition: border-color 0.15s, box-shadow 0.15s;
+
+  &:hover:not(&--disabled) {
+    border-color: var(--primary);
+  }
+
+  &--disabled {
+    opacity: 0.55;
+    cursor: not-allowed;
+  }
+}
+
+.vms-shell--open .vms-trigger {
+  border-color: var(--primary);
+  box-shadow: 0 0 0 4px var(--primary-light);
+}
+
+.vms-shell--invalid .vms-trigger {
+  border-color: var(--danger);
+}
+
+.vms-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 6px 4px 10px;
+  border-radius: 8px;
+  background: var(--primary-light);
+  color: var(--primary-dark);
+  font-size: 12px;
+  font-weight: 700;
+  animation: vms-chip-in 0.15s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes vms-chip-in {
+  from { opacity: 0; transform: scale(0.9); }
+  to   { opacity: 1; transform: scale(1); }
+}
+
+.vms-chip-member {
+  font-weight: 500;
+  color: color-mix(in srgb, var(--primary-dark) 75%, var(--txt3));
+  font-size: 11px;
+}
+
+.vms-chip-remove {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  border: none;
+  background: transparent;
+  color: inherit;
+  cursor: pointer;
+
+  &:hover {
+    background: color-mix(in srgb, var(--primary-dark) 15%, transparent);
+  }
+}
+
+.vms-search-input {
+  flex: 1;
+  min-width: 100px;
+  border: none;
+  outline: none;
+  background: transparent;
+  font: inherit;
+  font-family: var(--font-base);
+  font-size: 13px;
+  color: var(--txt);
+  padding: 4px 2px;
+
+  &::placeholder {
+    color: var(--txt3);
+  }
+}
+
+.vms-panel {
+  position: absolute;
+  z-index: 30;
+  inset-inline: 0;
+  top: calc(100% + 6px);
+  max-height: 260px;
+  overflow-y: auto;
+  border-radius: 12px;
+  border: 1px solid var(--brd);
+  background: var(--bg2);
+  box-shadow: 0 12px 32px -12px rgba(20, 30, 15, 0.28);
+  padding: 6px;
+  animation: vms-panel-in 0.15s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes vms-panel-in {
+  from { opacity: 0; transform: translateY(-4px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.vms-panel-state {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 16px;
+  color: var(--txt3);
+  font-size: 12px;
+}
+
+.vms-spinner {
+  width: 14px;
+  height: 14px;
+  border: 2px solid var(--brd2);
+  border-top-color: var(--primary);
+  border-radius: 50%;
+  animation: vms-spin 0.7s linear infinite;
+}
+
+@keyframes vms-spin {
+  to { transform: rotate(360deg); }
+}
+
+.vms-option {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  width: 100%;
+  padding: 9px 10px;
+  border: none;
+  border-radius: 8px;
+  background: transparent;
+  color: var(--txt);
+  font-family: var(--font-base);
+  font-size: 12.5px;
+  text-align: start;
+  cursor: pointer;
+  transition: background 0.12s;
+
+  &--active {
+    background: var(--bg3);
+  }
+}
+
+.vms-option-villa {
+  font-weight: 700;
+}
+
+.vms-option-member {
+  color: var(--txt3);
+  font-size: 11.5px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .vms-panel,
+  .vms-chip,
+  .vms-spinner {
+    animation: none;
+  }
+}

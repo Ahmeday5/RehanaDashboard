@@ -1,0 +1,12 @@
+<div class="stat-card" [class.stat-card--in]="hasEntered()" [attr.data-tone]="tone()">
+  <div class="stat-card-glow"></div>
+  <div class="stat-card-icon">
+    <app-icon [name]="icon()" [size]="20" />
+  </div>
+  <div class="stat-card-body">
+    <span class="stat-card-label">{{ label() }}</span>
+    <span class="stat-card-value">
+      {{ displayValue().toLocaleString('ar-EG') }}<span class="stat-card-suffix">{{ suffix() }}</span>
+    </span>
+  </div>
+</div>

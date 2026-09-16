@@ -6,6 +6,7 @@ import {
   output,
   signal,
 } from '@angular/core';
+import { IconComponent } from '../icon/icon.component';
 
 /**
  * Reusable, accessible pagination control.
@@ -37,6 +38,7 @@ const WINDOW_SIZE = 5;
   selector: 'app-pagination',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
+  imports: [IconComponent],
   templateUrl: './pagination.component.html',
   styleUrl: './pagination.component.scss',
 })

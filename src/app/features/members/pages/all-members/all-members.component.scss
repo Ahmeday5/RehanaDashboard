@@ -13,7 +13,11 @@
   width: 38px;
   height: 38px;
   border-radius: 11px;
-  background: linear-gradient(135deg, var(--primary-light) 0%, color-mix(in srgb, var(--primary) 20%, var(--bg2)) 100%);
+  background: linear-gradient(
+    135deg,
+    var(--primary-light) 0%,
+    color-mix(in srgb, var(--primary) 20%, var(--bg2)) 100%
+  );
   color: var(--primary-dark);
   overflow: hidden;
   flex-shrink: 0;
@@ -56,6 +60,78 @@
   max-width: 200px;
 }
 
+/* ═══════ Row Number ═══════ */
+
+.row-number {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 28px;
+  height: 28px;
+  border-radius: 8px;
+  background: var(--bg3);
+  color: var(--txt2);
+  font-size: 11.5px;
+  font-weight: 700;
+}
+
+/* ═══════ Villa Information Cell ═══════ */
+
+.villa-cell {
+  display: flex;
+  gap: 10px;
+  min-width: 0;
+  text-align: start;
+}
+
+.villa-main {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--txt);
+  margin-bottom: 6px;
+}
+
+.villa-main app-icon {
+  color: var(--primary);
+  flex-shrink: 0;
+}
+
+.villa-number {
+  font-size: 12.5px;
+  font-weight: 700;
+  color: var(--txt);
+}
+
+.villa-meta {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11px;
+  color: var(--txt2);
+}
+
+.villa-location {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  min-width: 0;
+  font-size: 10.5px;
+  color: var(--txt3);
+}
+
+.villa-location span {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 130px;
+}
+
+.villa-separator {
+  color: var(--brd2);
+  flex-shrink: 0;
+}
+
 /* ═══════ Member type badge ═══════ */
 .type-badge {
   display: inline-flex;
@@ -95,14 +171,23 @@
 .members-skeleton-row {
   height: 56px;
   border-radius: 12px;
-  background: linear-gradient(90deg, var(--bg3) 25%, var(--brd) 50%, var(--bg3) 75%);
+  background: linear-gradient(
+    90deg,
+    var(--bg3) 25%,
+    var(--brd) 50%,
+    var(--bg3) 75%
+  );
   background-size: 200% 100%;
   animation: skeleton-shimmer 1.4s ease-in-out infinite;
 }
 
 @keyframes skeleton-shimmer {
-  from { background-position: 200% 0; }
-  to   { background-position: -200% 0; }
+  from {
+    background-position: 200% 0;
+  }
+  to {
+    background-position: -200% 0;
+  }
 }
 
 .members-error {
@@ -140,7 +225,10 @@
   cursor: pointer;
   overflow: hidden;
   flex-shrink: 0;
-  transition: border-color 0.15s, color 0.15s, transform 0.15s;
+  transition:
+    border-color 0.15s,
+    color 0.15s,
+    transform 0.15s;
 
   &:hover {
     border-color: var(--primary);

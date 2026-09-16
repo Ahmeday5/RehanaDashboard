@@ -1,7 +1,13 @@
-<div class="tw">
+<div class="tw" [class.tw--refreshing]="refreshing()">
+  @if (refreshing()) {
+    <div class="tw-progress" aria-hidden="true"></div>
+  }
   <table class="table">
     <thead>
       <tr>
+        @if (expandable()) {
+        <th style="width: 120px; text-align: center">{{ expandLabel() }}</th>
+        }
         @for (col of columns(); track col.key) {
         <th [style.width]="col.width" [style.text-align]="col.align ?? 'left'">
           {{ col.label }}
@@ -15,30 +21,57 @@
     <tbody>
       @if (data().length === 0) {
       <tr>
-        <td [attr.colspan]="hasActions() ? columns().length + 1 : columns().length">
+        <td [attr.colspan]="(expandable() ? 1 : 0) + (hasActions() ? columns().length + 1 : columns().length)">
           <app-empty-state [message]="emptyMessage()" />
         </td>
       </tr>
       }
-      @for (row of data(); track rowKey(row)) {
-      <tr (click)="rowClick.emit(row)" [style.cursor]="rowClickable() ? 'pointer' : ''">
+      @for (row of data(); track rowKey(row); let i = $index) {
+      <tr (click)="expandable() ? toggleExpanded(row) : rowClick.emit(row)"
+        [style.cursor]="rowClickable() || expandable() ? 'pointer' : ''"
+        [class.tw-row--expanded]="expandable() && isExpanded(row)">
+        @if (expandable()) {
+        <td class="tw-expand-cell" (click)="toggleExpanded(row); $event.stopPropagation()">
+          <button type="button" class="tw-expand-toggle" [class.tw-expand-toggle--open]="isExpanded(row)">
+            <span>{{ isExpanded(row) ? 'إخفاء' : expandLabel() }}</span>
+            <app-icon name="chevron-down" [size]="13" />
+          </button>
+        </td>
+        }
         @for (col of columns(); track col.key) {
         <td [style.text-align]="col.align ?? 'left'">
           @if (col.cellTemplate) {
-          <ng-container *ngTemplateOutlet="col.cellTemplate; context: { $implicit: row }" />
+          <ng-container *ngTemplateOutlet="
+    col.cellTemplate;
+    context: {
+      $implicit: row,
+      index: i
+    }
+  " />
           } @else {
           {{ getCellValue(row, col.key) }}
           }
         </td>
         }
         @if (hasActions()) {
-        <td style="text-align: center">
+        <td style="text-align: center" (click)="$event.stopPropagation()">
           @if (actionsTemplate(); as tpl) {
           <ng-container *ngTemplateOutlet="tpl; context: { $implicit: row }" />
           }
         </td>
         }
       </tr>
+      @if (expandable() && isExpanded(row)) {
+      <tr class="tw-expand-row">
+        <td [attr.colspan]="1 + (hasActions() ? columns().length + 1 : columns().length)">
+          <div class="tw-expand-panel">
+            @if (expandedTemplate(); as tpl) {
+            <ng-container *ngTemplateOutlet="tpl; context: { $implicit: row }" />
+            }
+          </div>
+        </td>
+      </tr>
+      }
       }
     </tbody>
   </table>

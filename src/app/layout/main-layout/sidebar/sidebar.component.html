@@ -1,12 +1,12 @@
 <nav class="sidebar" [class.collapsed]="layout.collapsed()" [class.open]="layout.mobileOpen()">
   <div class="sidebar-glow" aria-hidden="true"></div>
 
-  <div class="sb-brand">
+  <a class="sb-brand" routerLink="/dashboard" (click)="layout.closeMobile()">
     <span class="sb-brand-logo">
       <img src="assets/img/logo.png" alt="" />
     </span>
     <span class="sb-brand-name">ريحانة</span>
-  </div>
+  </a>
 
   <div class="sb-scroll">
     <!-- Nav sections -->

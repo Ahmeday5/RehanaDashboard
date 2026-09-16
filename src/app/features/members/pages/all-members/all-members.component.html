@@ -3,104 +3,206 @@
     <div class="pgt">كل الملاك</div>
     <div class="pgs">إدارة بيانات ملاك وسكان الفيلات والشقق في المجمع</div>
   </div>
-  <app-button (clicked)="openAddModal()">
-    <app-icon name="plus" [size]="15" />
-    إضافة مالك
-  </app-button>
+  <div class="pgh-actions">
+    <app-refresh-button [loading]="members.isRefreshing()" (refresh)="members.load(undefined, undefined, true)" />
+    <app-button (clicked)="openAddModal()">
+      <app-icon name="plus" [size]="15" />
+      إضافة مالك
+    </app-button>
+  </div>
 </div>
 
-@if (members.state().status === 'loading') {
-  <div class="members-skeleton">
-    @for (i of [1, 2, 3, 4, 5]; track i) {
-      <div class="members-skeleton-row"></div>
-    }
-  </div>
+@if (members.state().status === 'loading' && members.state().items.length === 0) {
+<div class="members-skeleton">
+  @for (i of [1, 2, 3, 4, 5]; track i) {
+  <div class="members-skeleton-row"></div>
+  }
+</div>
 } @else if (members.state().status === 'error') {
-  <div class="members-error">
-    <app-icon name="bell" [size]="20" />
-    <span>{{ members.state().errorMessage }}</span>
-    <app-button size="sm" variant="secondary" (clicked)="members.load()">إعادة المحاولة</app-button>
-  </div>
+<div class="members-error">
+  <app-icon name="bell" [size]="20" />
+  <span>{{ members.state().errorMessage }}</span>
+  <app-button size="sm" variant="secondary" (clicked)="members.load()">إعادة المحاولة</app-button>
+</div>
 } @else {
-  <ng-template #identityCell let-member>
-    <div class="member-cell">
-      <span class="member-avatar">
-        @if (resolveAvatar(member.pictureUrl); as url) {
-          <img [src]="url" [alt]="member.userName" />
-        } @else {
-          <span class="member-avatar-initial">{{ member.userName?.charAt(0) }}</span>
+<ng-template #indexCell let-member let-index="index">
+  <span class="row-number">
+    {{ index + 1 }}
+  </span>
+</ng-template>
+
+<ng-template #identityCell let-member>
+  <div class="member-cell">
+    <span class="member-avatar">
+      @if (resolveAvatar(member.pictureUrl); as url) {
+      <img [src]="url" [alt]="member.userName" />
+      } @else {
+      <span class="member-avatar-initial">{{ member.userName?.charAt(0) }}</span>
+      }
+    </span>
+    <div class="member-identity">
+      <span class="member-name">{{ member.userName }}</span>
+      <span class="member-address">{{ member.villaAddress || 'بدون عنوان' }}</span>
+    </div>
+  </div>
+</ng-template>
+
+<ng-template #typeCell let-member>
+  <span class="type-badge" [class.type-badge--tenant]="member.memberType === 'مستأجر'"
+    [class.type-badge--proxy]="member.memberType === 'مفوض'">
+    {{ member.memberType || '—' }}
+  </span>
+</ng-template>
+
+<ng-template #villaCell let-member>
+  <div class="villa-cell">
+
+    <div>
+      <div class="villa-main">
+        <app-icon name="home" [size]="14" />
+        <span class="villa-number">
+          فيلا {{ member.villaNumber || '—' }}
+        </span>
+      </div>
+
+      <div class="villa-meta">
+        @if (member.villaSpace) {
+        <span>
+          {{ member.villaSpace }} م²
+        </span>
         }
-      </span>
-      <div class="member-identity">
-        <span class="member-name">{{ member.userName }}</span>
-        <span class="member-address">{{ member.villaAddress || 'بدون عنوان' }}</span>
+
+        @if (member.villaType) {
+        <span class="villa-separator">•</span>
+        <span>{{ member.villaType }}</span>
+        }
       </div>
     </div>
-  </ng-template>
 
-  <ng-template #typeCell let-member>
-    <span class="type-badge" [class.type-badge--tenant]="member.memberType === 'مستأجر'" [class.type-badge--proxy]="member.memberType === 'مفوض'">
-      {{ member.memberType || '—' }}
-    </span>
-  </ng-template>
+    <div class="villa-location">
+      @if (member.villaStreet) {
+      <span>{{ member.villaStreet }}</span>
+      }
 
-  <ng-template #rowActions let-member>
-    <div class="row-actions">
-      <app-button size="sm" variant="secondary" [iconOnly]="true" (clicked)="openEdit(member)" title="تعديل">
-        <app-icon name="edit" [size]="14" />
-      </app-button>
-      <app-button size="sm" variant="danger" [iconOnly]="true" (clicked)="confirmDelete(member)" title="حذف">
-        <app-icon name="trash" [size]="14" />
-      </app-button>
+      @if (member.villaStreet && member.villaLocation) {
+      <span class="villa-separator">•</span>
+      }
+
+
+      @if (isMapUrl(member.villaLocation)) {
+      <a class="villa-map" [href]="member.villaLocation" target="_blank" rel="noopener noreferrer"
+        title="فتح موقع الفيلا على Google Maps" (click)="$event.stopPropagation()">
+        <i class="fa-solid fa-location-dot"></i>
+      </a>
+      }@else {
+        <span class="villa-location">{{ member.villaLocation || 'بدون موقع' }}</span>
+       }
+
     </div>
-  </ng-template>
 
-  <app-data-table
-    [columns]="[
-      { key: 'identity', label: 'المالك', align: 'right', width: '260px', cellTemplate: identityCell },
-      { key: 'villaNumber', label: 'رقم الفيلا', align: 'center' },
-      { key: 'memberType', label: 'نوع الساكن', align: 'center', cellTemplate: typeCell },
-      { key: 'phoneNumber', label: 'الهاتف', align: 'center' },
-      { key: 'email', label: 'البريد الإلكتروني', align: 'right' }
-    ]"
-    [data]="members.state().items"
-    trackByKey="id"
-    [hasActions]="true"
-    [actionsTemplate]="rowActions"
-    emptyMessage="لا يوجد ملاك بعد"
-    actionsLabel="الإجراء"
-  />
+  </div>
+</ng-template>
+
+<ng-template #rowActions let-member>
+  <div class="row-actions">
+    <app-button size="sm" variant="secondary" [iconOnly]="true" (clicked)="openEdit(member)" title="تعديل">
+      <app-icon name="edit" [size]="14" />
+    </app-button>
+    <app-button size="sm" variant="secondary" [iconOnly]="true" (clicked)="openChangePassword(member)" title="تغيير كلمة السر">
+      <app-icon name="lock" [size]="14" />
+    </app-button>
+    <app-button size="sm" variant="danger" [iconOnly]="true" (clicked)="confirmDelete(member)" title="حذف">
+      <app-icon name="trash" [size]="14" />
+    </app-button>
+  </div>
+</ng-template>
+
+<ng-template #dependantsPanel let-member>
+  <app-member-dependants-panel [memberId]="member.id" />
+</ng-template>
+
+<app-data-table [columns]="[
+    {
+      key: 'index',
+      label: '#',
+      align: 'center',
+      width: '55px',
+      cellTemplate: indexCell
+    },
+    {
+      key: 'identity',
+      label: 'المالك',
+      align: 'right',
+      width: '240px',
+      cellTemplate: identityCell
+    },
+    {
+      key: 'villa',
+      label: 'بيانات الفيلا',
+      align: 'right',
+      width: '300px',
+      cellTemplate: villaCell
+    },
+    {
+      key: 'memberType',
+      label: 'نوع الساكن',
+      align: 'center',
+      cellTemplate: typeCell
+    },
+    {
+      key: 'phoneNumber',
+      label: 'الهاتف',
+      align: 'center'
+    },
+    {
+      key: 'email',
+      label: 'البريد الإلكتروني',
+      align: 'right'
+    }
+  ]" [data]="members.state().items" trackByKey="id" [hasActions]="true" [actionsTemplate]="rowActions"
+  [expandable]="true" [expandedTemplate]="dependantsPanel" expandLabel="أقارب المالك"
+  [refreshing]="members.state().status === 'loading' && members.state().items.length > 0"
+  emptyMessage="لا يوجد ملاك بعد" actionsLabel="الإجراء" />
+
+<app-pagination
+  [pageIndex]="members.state().page"
+  [pageSize]="members.state().pageSize"
+  [count]="members.state().totalItems"
+  [totalPages]="members.state().totalPages"
+  [disabled]="members.state().status === 'loading'"
+  (pageChange)="members.load($event)"
+  (pageSizeChange)="members.load(1, $event)"
+/>
 }
 
 <!-- ═══════ Add Member — modal, launched from the button above ═══════ -->
 <app-add-member-modal (created)="onMemberCreated(); members.load()" />
+
+<!-- ═══════ Change Password — modal, launched from a row action ═══════ -->
+<app-change-member-password-modal />
 
 <!-- ═══════ Edit dialog ═══════ -->
 <app-modal [open]="isEditOpen()" title="تعديل بيانات المالك" size="lg" (closed)="closeEdit()">
   <form class="edit-form" [formGroup]="editForm" (ngSubmit)="saveEdit()" novalidate>
 
     <div class="upload-row">
-      <label
-        class="image-upload"
-        [class.image-upload--filled]="!!editDisplayImageUrl()"
-        (dragover)="$event.preventDefault()"
-        (drop)="onEditImageDrop($event)"
-      >
+      <label class="image-upload" [class.image-upload--filled]="!!editDisplayImageUrl()"
+        (dragover)="$event.preventDefault()" (drop)="onEditImageDrop($event)">
         <input type="file" accept="image/*" (change)="onEditImageSelected($event)" hidden />
         @if (editDisplayImageUrl(); as url) {
-          <img class="image-upload-preview" [src]="url" alt="صورة المالك" />
+        <img class="image-upload-preview" [src]="url" alt="صورة المالك" />
         } @else {
-          <app-icon name="users" [size]="22" />
+        <app-icon name="users" [size]="22" />
         }
       </label>
       <div class="upload-copy">
         <span class="upload-title">الصورة الشخصية</span>
         <span class="upload-hint">اسحب صورة جديدة هنا أو اضغط للاستبدال</span>
         @if (editSelectedImage(); as file) {
-          <button type="button" class="upload-remove" (click)="clearEditImage()">
-            <app-icon name="x" [size]="12" />
-            {{ file.name }}
-          </button>
+        <button type="button" class="upload-remove" (click)="clearEditImage()">
+          <app-icon name="x" [size]="12" />
+          {{ file.name }}
+        </button>
         }
       </div>
     </div>
@@ -119,11 +221,6 @@
       </div>
 
       <div class="field">
-        <label class="field-label">كلمة السر (اتركها فارغة لعدم التغيير)</label>
-        <app-password-input formControlName="password" autocomplete="new-password" />
-      </div>
-
-      <div class="field">
         <label class="field-label">رقم الهاتف</label>
         <input class="form-control" formControlName="phoneNumber" />
         <app-form-error [control]="editForm.controls.phoneNumber" label="رقم الهاتف" />
@@ -139,7 +236,7 @@
         <label class="field-label">نوع الساكن</label>
         <select class="form-select" formControlName="memberType">
           @for (t of memberTypes; track t) {
-            <option [value]="t">{{ t }}</option>
+          <option [value]="t">{{ t }}</option>
           }
         </select>
       </div>
@@ -154,7 +251,7 @@
         <label class="field-label">حالة التشطيب</label>
         <select class="form-select" formControlName="villaType">
           @for (t of villaTypes; track t) {
-            <option [value]="t">{{ t }}</option>
+          <option [value]="t">{{ t }}</option>
           }
         </select>
       </div>
@@ -178,10 +275,10 @@
     </div>
 
     @if (serverError(); as msg) {
-      <div class="server-error" role="alert">
-        <app-icon name="bell" [size]="15" />
-        <span>{{ msg }}</span>
-      </div>
+    <div class="server-error" role="alert">
+      <app-icon name="bell" [size]="15" />
+      <span>{{ msg }}</span>
+    </div>
     }
   </form>
 

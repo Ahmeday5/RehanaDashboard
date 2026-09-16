@@ -1,0 +1,87 @@
+<div class="dash-hero">
+  <div class="dash-hero-glow dash-hero-glow--a"></div>
+  <div class="dash-hero-glow dash-hero-glow--b"></div>
+
+  <div class="dash-hero-content">
+    <div class="dash-hero-copy">
+      <span class="dash-hero-eyebrow">
+        <app-icon name="sparkles" [size]="13" />
+        لوحة تحكم مجمع ريحانة
+      </span>
+      <h1 class="dash-hero-title">{{ greeting() }}، {{ userName() || 'بك' }}</h1>
+      <p class="dash-hero-subtitle">نظرة شاملة على حالة المجمع الآن — الملاك، الأمن، الدعوات، والحسابات.</p>
+    </div>
+
+    <app-refresh-button [loading]="stats.isRefreshing()" (refresh)="refresh()" label="تحديث الإحصائيات" />
+  </div>
+</div>
+
+@if (data(); as data) {
+  <!-- ═══════ نظرة عامة ═══════ -->
+  <section class="dash-section">
+    <div class="dash-section-head">
+      <span class="dash-section-icon"><app-icon name="users" [size]="15" /></span>
+      <h2 class="dash-section-title">نظرة عامة</h2>
+    </div>
+    <div class="dash-grid dash-grid--4">
+      <app-stat-card icon="users" label="إجمالي الملاك" [value]="data.totalMembers" tone="primary" [delayMs]="0" />
+      <app-stat-card icon="shield" label="حراس الأمن" [value]="data.totalSecurityGuards" tone="info" [delayMs]="60" />
+      <app-stat-card icon="user-cog" label="مستخدمو النظام" [value]="data.totalOwners" tone="neutral" [delayMs]="120" />
+      <app-stat-card
+        icon="banknote"
+        label="صافي المديونيات"
+        [value]="data.totalOutstandingDebts"
+        [tone]="data.totalOutstandingDebts > 0 ? 'danger' : data.totalOutstandingDebts < 0 ? 'info' : 'success'"
+        suffix=" ج.م"
+        [delayMs]="180"
+      />
+    </div>
+  </section>
+
+  <!-- ═══════ الدعوات ═══════ -->
+  <section class="dash-section">
+    <div class="dash-section-head">
+      <span class="dash-section-icon"><app-icon name="ticket" [size]="15" /></span>
+      <h2 class="dash-section-title">الدعوات</h2>
+    </div>
+    <div class="dash-grid dash-grid--3">
+      <app-stat-card icon="clock" label="دعوات قادمة" [value]="data.upcomingInvitations" tone="info" [delayMs]="0" />
+      <app-stat-card icon="check" label="دعوات مكتملة" [value]="data.completedInvitations" tone="success" [delayMs]="60" />
+      <app-stat-card icon="x" label="دعوات ملغاة" [value]="data.canceledInvitations" tone="danger" [delayMs]="120" />
+    </div>
+  </section>
+
+  <!-- ═══════ الحسابات والزوار ═══════ -->
+  <section class="dash-section">
+    <div class="dash-section-head">
+      <span class="dash-section-icon"><app-icon name="wallet" [size]="15" /></span>
+      <h2 class="dash-section-title">الحسابات والزوار</h2>
+    </div>
+
+    <div class="dash-financial-layout">
+      <div class="dash-card dash-card--chart">
+        <span class="dash-card-title">المقبوضات مقابل المصروفات</span>
+        <app-financial-chart [receipts]="data.totalReceipts" [disbursements]="data.totalDisbursements" />
+      </div>
+
+      <div class="dash-grid dash-grid--2 dash-grid--stack">
+        <app-stat-card icon="banknote" label="إجمالي المديونيات" [value]="data.totalDebts" tone="neutral" suffix=" ج.م" [delayMs]="0" />
+        <app-stat-card icon="receipt" label="مدفوعات المديونيات" [value]="data.totalDebtPayments" tone="success" suffix=" ج.م" [delayMs]="60" />
+        <app-stat-card icon="eye" label="دعوات زوار نشطة" [value]="data.activeVisitorInvitations" tone="primary" [delayMs]="120" />
+        <app-stat-card icon="eye-off" label="دعوات زوار منتهية" [value]="data.expiredVisitorInvitations" tone="neutral" [delayMs]="180" />
+      </div>
+    </div>
+  </section>
+} @else if (stats.state().status === 'error') {
+  <div class="dash-error">
+    <app-icon name="bell" [size]="22" />
+    <span>{{ stats.state().errorMessage }}</span>
+    <app-button size="sm" variant="secondary" (clicked)="stats.load()">إعادة المحاولة</app-button>
+  </div>
+} @else {
+  <div class="dash-skeleton">
+    @for (i of [1, 2, 3, 4]; track i) {
+      <div class="dash-skeleton-card"></div>
+    }
+  </div>
+}

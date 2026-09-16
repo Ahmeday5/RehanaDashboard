@@ -1,0 +1,230 @@
+.filter-bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+  padding: 12px;
+  margin-bottom: 18px;
+  border-radius: 14px;
+  background: var(--bg2);
+  border: 1px solid var(--brd);
+}
+
+.filter-select {
+  flex: 1 1 220px;
+  min-width: 200px;
+
+  ::ng-deep .gs-trigger {
+    height: 38px;
+  }
+}
+
+.filter-field {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex: 1 1 160px;
+  min-width: 140px;
+  height: 38px;
+  padding-inline: 12px;
+  border-radius: 10px;
+  border: 1.5px solid var(--brd2);
+  background: var(--bg3);
+  transition: border-color 0.15s, background 0.15s;
+
+  &:focus-within {
+    border-color: var(--primary);
+    background: var(--bg2);
+  }
+
+  &--date {
+    flex: 1 1 150px;
+  }
+}
+
+.filter-icon {
+  color: var(--txt3);
+  flex-shrink: 0;
+}
+
+.filter-input {
+  flex: 1;
+  min-width: 0;
+  border: none;
+  outline: none;
+  background: transparent;
+  font-family: var(--font-base);
+  font-size: 12.5px;
+  color: var(--txt);
+
+  &::placeholder {
+    color: var(--txt3);
+  }
+}
+
+.filter-clear {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  height: 38px;
+  padding-inline: 12px;
+  border-radius: 10px;
+  border: 1px solid var(--brd2);
+  background: transparent;
+  color: var(--txt2);
+  font-family: var(--font-base);
+  font-size: 11.5px;
+  font-weight: 600;
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: background 0.14s, color 0.14s;
+
+  &:hover {
+    background: color-mix(in srgb, var(--danger) 8%, transparent);
+    color: var(--danger);
+    border-color: transparent;
+  }
+}
+
+/* ═══════ Status segmented toggle ═══════ */
+.status-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  height: 38px;
+  padding: 3px;
+  border-radius: 10px;
+  background: var(--bg3);
+  flex-shrink: 0;
+}
+
+.status-toggle-btn {
+  height: 100%;
+  padding-inline: 14px;
+  border: none;
+  border-radius: 8px;
+  background: transparent;
+  color: var(--txt2);
+  font-family: var(--font-base);
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s, box-shadow 0.15s;
+  white-space: nowrap;
+
+  &:hover:not(&--active) {
+    color: var(--txt);
+  }
+
+  &--active {
+    background: var(--bg2);
+    color: var(--primary-dark);
+    box-shadow: 0 1px 3px rgba(20, 30, 15, 0.12);
+  }
+}
+
+/* ═══════ Row cells ═══════ */
+.guard-cell {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  justify-content: center;
+}
+
+.guard-avatar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+  color: #fff;
+  font-size: 11px;
+  font-weight: 700;
+  flex-shrink: 0;
+}
+
+.guard-name {
+  font-weight: 600;
+  color: var(--txt);
+}
+
+.time-value {
+  font-variant-numeric: tabular-nums;
+  color: var(--txt2);
+}
+
+.status-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 12px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 700;
+
+  &--active {
+    background: color-mix(in srgb, #3fb27f 12%, transparent);
+    color: #279463;
+  }
+
+  &--expired {
+    background: var(--bg3);
+    color: var(--txt3);
+  }
+}
+
+.status-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: currentColor;
+}
+
+.status-badge--active .status-dot {
+  animation: status-pulse 1.6s ease-in-out infinite;
+}
+
+@keyframes status-pulse {
+  0%, 100% { opacity: 1; box-shadow: 0 0 0 0 color-mix(in srgb, #3fb27f 45%, transparent); }
+  50%      { opacity: 0.75; box-shadow: 0 0 0 4px color-mix(in srgb, #3fb27f 0%, transparent); }
+}
+
+/* ═══════ Skeleton / error ═══════ */
+.inv-skeleton {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.inv-skeleton-row {
+  height: 48px;
+  border-radius: 12px;
+  background: linear-gradient(90deg, var(--bg3) 25%, var(--brd) 50%, var(--bg3) 75%);
+  background-size: 200% 100%;
+  animation: inv-shimmer 1.4s ease-in-out infinite;
+}
+
+@keyframes inv-shimmer {
+  from { background-position: 200% 0; }
+  to   { background-position: -200% 0; }
+}
+
+.inv-error {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 20px;
+  border-radius: 14px;
+  background: color-mix(in srgb, var(--danger) 6%, var(--bg2));
+  color: var(--danger);
+  font-size: 13px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .inv-skeleton-row,
+  .status-dot {
+    animation: none;
+  }
+}

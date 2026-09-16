@@ -5,11 +5,13 @@ import { resolveSecurityGuardAvatarUrl } from '../../data/security-guards-api.se
 import { SecurityGuard } from '../../data/security-guard.model';
 import { DataTableComponent, TableColumn } from '../../../../shared/components/data-table/data-table.component';
 import { ButtonComponent } from '../../../../shared/components/button/button.component';
+import { RefreshButtonComponent } from '../../../../shared/components/refresh-button/refresh-button.component';
 import { IconComponent } from '../../../../shared/components/icon/icon.component';
 import { ModalComponent } from '../../../../shared/components/modal/modal.component';
 import { FormErrorComponent } from '../../../../shared/components/form-error/form-error.component';
-import { PasswordInputComponent } from '../../../../shared/components/password-input/password-input.component';
+import { PaginationComponent } from '../../../../shared/components/pagination/pagination.component';
 import { AddSecurityGuardModalComponent } from '../../components/add-security-guard-modal/add-security-guard-modal.component';
+import { ChangeSecurityGuardPasswordModalComponent } from '../../components/change-security-guard-password-modal/change-security-guard-password-modal.component';
 import { DialogService } from '../../../../core/services/dialog.service';
 import { ToastService } from '../../../../core/services/toast.service';
 import { ApiError } from '../../../../core/models/api-response.model';
@@ -27,11 +29,13 @@ const GATE_NUMBER_PATTERN = /^\d+$/;
     ReactiveFormsModule,
     DataTableComponent,
     ButtonComponent,
+    RefreshButtonComponent,
+    PaginationComponent,
     IconComponent,
     ModalComponent,
     FormErrorComponent,
-    PasswordInputComponent,
     AddSecurityGuardModalComponent,
+    ChangeSecurityGuardPasswordModalComponent,
   ],
   templateUrl: './all-security-guards.component.html',
   styleUrl: './all-security-guards.component.scss',
@@ -44,6 +48,7 @@ export class AllSecurityGuardsComponent implements OnInit {
 
   protected readonly resolveAvatar = resolveSecurityGuardAvatarUrl;
   protected readonly addModal = viewChild.required(AddSecurityGuardModalComponent);
+  protected readonly passwordModal = viewChild.required(ChangeSecurityGuardPasswordModalComponent);
 
   protected readonly editTarget = signal<SecurityGuard | null>(null);
   protected readonly isEditOpen = computed(() => this.editTarget() !== null);
@@ -58,7 +63,6 @@ export class AllSecurityGuardsComponent implements OnInit {
   protected readonly editForm = this.fb.nonNullable.group({
     userName: ['', [Validators.required, Validators.minLength(2)]],
     email: ['', [Validators.required, Validators.pattern(EMAIL_PATTERN)]],
-    password: [''],
     phoneNumber: ['', [Validators.required, Validators.pattern(PHONE_PATTERN)]],
     gateNumber: ['', [Validators.required, Validators.pattern(GATE_NUMBER_PATTERN)]],
   });
@@ -81,7 +85,6 @@ export class AllSecurityGuardsComponent implements OnInit {
     this.editForm.reset({
       userName: guard.userName,
       email: guard.email,
-      password: '',
       phoneNumber: guard.phoneNumber,
       gateNumber: guard.gateNumber,
     });
@@ -90,6 +93,10 @@ export class AllSecurityGuardsComponent implements OnInit {
 
   protected closeEdit(): void {
     this.editTarget.set(null);
+  }
+
+  protected openChangePassword(guard: SecurityGuard): void {
+    this.passwordModal().launch(guard);
   }
 
   protected onEditImageSelected(event: Event): void {
@@ -134,7 +141,6 @@ export class AllSecurityGuardsComponent implements OnInit {
         UserName: v.userName,
         Email: v.email,
         PhoneNumber: v.phoneNumber,
-        Password: v.password || undefined,
         Image: this.editSelectedImage(),
         GateNumber: v.gateNumber,
       });

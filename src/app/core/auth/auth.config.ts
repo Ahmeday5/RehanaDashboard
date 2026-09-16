@@ -15,9 +15,12 @@ export const AUTH_ENDPOINTS = {
 
 /**
  * Default route after login. The Flutter app's real de-facto landing screen
- * is "All Owners" (villa/apartment residents — the "Member" concept here,
- * spec §6.3) — not a dedicated dashboard.
+ * was "All Owners" (villa/apartment residents — the "Member" concept here,
+ * spec §6.3) since it never had a dashboard/home screen at all — replaced
+ * 2026-09-16 with a real overview screen backed by `GET /Dashboard/statistics`
+ * (confirmed as "the first page the app opens to"), a genuinely new feature
+ * with no Flutter-source equivalent.
  */
-export const DEFAULT_AUTHENTICATED_ROUTE = '/members';
+export const DEFAULT_AUTHENTICATED_ROUTE = '/dashboard';
 
 export const LOGIN_ROUTE = '/auth/login';

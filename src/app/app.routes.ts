@@ -2,11 +2,6 @@ import { Routes } from '@angular/router';
 import { authGuard } from './core/auth/guards/auth.guard';
 import { guestGuard } from './core/auth/guards/guest.guard';
 
-const placeholder = () =>
-  import('./shared/components/route-placeholder/route-placeholder.component').then(
-    (m) => m.RoutePlaceholderComponent,
-  );
-
 export const routes: Routes = [
   // Auth area — only reachable when NOT signed in
   {
@@ -44,9 +39,7 @@ export const routes: Routes = [
 
   // Authenticated app shell — one route per list screen. "Add X" flows are
   // modals launched from their list screen, not separate routes (confirmed
-  // UX decision) — see nav.constants.ts for the full rationale. Each
-  // `loadComponent` is swapped from the shared placeholder to its real
-  // feature component as that feature's step lands.
+  // UX decision) — see nav.constants.ts for the full rationale.
   {
     path: '',
     canActivate: [authGuard],
@@ -56,6 +49,13 @@ export const routes: Routes = [
         (m) => m.MainLayoutComponent,
       ),
     children: [
+      {
+        path: 'dashboard',
+        loadComponent: () =>
+          import('./features/dashboard/pages/dashboard-home/dashboard-home.component').then(
+            (m) => m.DashboardHomeComponent,
+          ),
+      },
       {
         path: 'members',
         loadComponent: () =>
@@ -77,10 +77,41 @@ export const routes: Routes = [
             (m) => m.AllSecurityGuardsComponent,
           ),
       },
-      { path: 'accounts/receipts', loadComponent: placeholder, data: { title: 'سندات القبض' } },
-      { path: 'accounts/disbursements', loadComponent: placeholder, data: { title: 'سندات الصرف' } },
-      { path: 'accounts/bulk-disbursement', loadComponent: placeholder, data: { title: 'إدارة المصروفات' } },
-      { path: 'collections', loadComponent: placeholder, data: { title: 'مقبوضات' } },
+      {
+        path: 'accounts/maintenance-differences',
+        loadComponent: () =>
+          import('./features/bonds/pages/maintenance-differences/maintenance-differences.component').then(
+            (m) => m.MaintenanceDifferencesComponent,
+          ),
+      },
+      {
+        path: 'accounts/maintenance-payments',
+        loadComponent: () =>
+          import('./features/bonds/pages/maintenance-payments/maintenance-payments.component').then(
+            (m) => m.MaintenancePaymentsComponent,
+          ),
+      },
+      {
+        path: 'accounts/debts',
+        loadComponent: () =>
+          import('./features/debts/pages/debts-list/debts-list.component').then(
+            (m) => m.DebtsListComponent,
+          ),
+      },
+      {
+        path: 'accounts/debt-payments',
+        loadComponent: () =>
+          import('./features/debts/pages/debt-payments/debt-payments.component').then(
+            (m) => m.DebtPaymentsComponent,
+          ),
+      },
+      {
+        path: 'security-guard-invitations',
+        loadComponent: () =>
+          import('./features/security-guard-invitations/pages/invitations-list/invitations-list.component').then(
+            (m) => m.InvitationsListComponent,
+          ),
+      },
       {
         path: 'chat',
         data: { title: 'الدردشات' },
@@ -97,9 +128,9 @@ export const routes: Routes = [
             (m) => m.ChatShellComponent,
           ),
       },
-      { path: '', redirectTo: 'members', pathMatch: 'full' },
+      { path: '', redirectTo: 'dashboard', pathMatch: 'full' },
     ],
   },
 
-  { path: '**', redirectTo: '/members' },
+  { path: '**', redirectTo: '/dashboard' },
 ];

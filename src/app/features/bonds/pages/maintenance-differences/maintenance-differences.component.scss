@@ -1,0 +1,142 @@
+.filter-bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+  padding: 12px;
+  margin-bottom: 18px;
+  border-radius: 14px;
+  background: var(--bg2);
+  border: 1px solid var(--brd);
+}
+
+.filter-select {
+  flex: 1 1 200px;
+  min-width: 180px;
+
+  ::ng-deep .vs-trigger {
+    height: 38px;
+  }
+}
+
+.filter-field {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex: 1 1 160px;
+  min-width: 140px;
+  height: 38px;
+  padding-inline: 12px;
+  border-radius: 10px;
+  border: 1.5px solid var(--brd2);
+  background: var(--bg3);
+  transition: border-color 0.15s, background 0.15s;
+
+  &:focus-within {
+    border-color: var(--primary);
+    background: var(--bg2);
+  }
+
+  &--date {
+    flex: 1 1 150px;
+  }
+}
+
+.filter-icon {
+  color: var(--txt3);
+  flex-shrink: 0;
+}
+
+.filter-input {
+  flex: 1;
+  min-width: 0;
+  border: none;
+  outline: none;
+  background: transparent;
+  font-family: var(--font-base);
+  font-size: 12.5px;
+  color: var(--txt);
+
+  &::placeholder {
+    color: var(--txt3);
+  }
+}
+
+.filter-clear {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  height: 38px;
+  padding-inline: 12px;
+  border-radius: 10px;
+  border: 1px solid var(--brd2);
+  background: transparent;
+  color: var(--txt2);
+  font-family: var(--font-base);
+  font-size: 11.5px;
+  font-weight: 600;
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: background 0.14s, color 0.14s;
+
+  &:hover {
+    background: color-mix(in srgb, var(--danger) 8%, transparent);
+    color: var(--danger);
+    border-color: transparent;
+  }
+}
+
+.row-number {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 28px;
+  height: 28px;
+  border-radius: 8px;
+  background: var(--bg3);
+  color: var(--txt2);
+  font-size: 11.5px;
+  font-weight: 700;
+}
+
+.amount-value {
+  font-weight: 700;
+  color: var(--primary-dark);
+  font-variant-numeric: tabular-nums;
+}
+
+.diffs-skeleton {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.diffs-skeleton-row {
+  height: 48px;
+  border-radius: 12px;
+  background: linear-gradient(90deg, var(--bg3) 25%, var(--brd) 50%, var(--bg3) 75%);
+  background-size: 200% 100%;
+  animation: diffs-shimmer 1.4s ease-in-out infinite;
+}
+
+@keyframes diffs-shimmer {
+  from { background-position: 200% 0; }
+  to   { background-position: -200% 0; }
+}
+
+.diffs-error {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 20px;
+  border-radius: 14px;
+  background: color-mix(in srgb, var(--danger) 6%, var(--bg2));
+  color: var(--danger);
+  font-size: 13px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .diffs-skeleton-row {
+    animation: none;
+  }
+}

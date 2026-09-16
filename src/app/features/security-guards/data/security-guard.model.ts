@@ -26,13 +26,22 @@ export interface CreateSecurityGuardRequest {
   DeviceToken?: string;
 }
 
-/** `PUT /Dashboard/updateSecurityGuard`, multipart — verified against the live Swagger contract. All fields but Id are optional. */
+/**
+ * `PUT /Dashboard/updateSecurityGuard`, multipart — verified against the live Swagger contract. All fields but Id are optional.
+ * No longer carries a password — that moved to its own `updateSecurityGuardPassword`
+ * endpoint (confirmed 2026-09-16), mirroring Members; do not re-add a `Password` field here.
+ */
 export interface UpdateSecurityGuardRequest {
   Id: number;
   UserName?: string;
   Email?: string;
-  Password?: string;
   PhoneNumber?: string;
   Image?: File | null;
   GateNumber?: string;
+}
+
+/** `PUT /Dashboard/updateSecurityGuardPassword`, JSON body — confirmed 2026-09-16, separate from the general update endpoint. */
+export interface UpdateSecurityGuardPasswordRequest {
+  securityGuardId: number;
+  newPassword: string;
 }

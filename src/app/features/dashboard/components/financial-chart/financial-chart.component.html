@@ -1,0 +1,23 @@
+<div class="fc-shell" [class.fc-shell--in]="hasEntered()">
+  <div class="fc-row">
+    <div class="fc-row-head">
+      <span class="fc-dot fc-dot--receipts"></span>
+      <span class="fc-row-label">إجمالي المقبوضات</span>
+      <span class="fc-row-value">{{ formatAmount(receipts()) }}</span>
+    </div>
+    <div class="fc-track">
+      <div class="fc-fill fc-fill--receipts" [style.width.%]="hasEntered() ? receiptsPct() : 0"></div>
+    </div>
+  </div>
+
+  <div class="fc-row">
+    <div class="fc-row-head">
+      <span class="fc-dot fc-dot--disbursements"></span>
+      <span class="fc-row-label">إجمالي المصروفات</span>
+      <span class="fc-row-value">{{ formatAmount(disbursements()) }}</span>
+    </div>
+    <div class="fc-track">
+      <div class="fc-fill fc-fill--disbursements" [style.width.%]="hasEntered() ? disbursementsPct() : 0"></div>
+    </div>
+  </div>
+</div>

@@ -111,6 +111,13 @@
   padding: 18px 16px;
   flex-shrink: 0;
   border-bottom: 1px solid var(--sb-border);
+  text-decoration: none;
+  cursor: pointer;
+  transition: opacity 0.15s;
+
+  &:hover {
+    opacity: 0.85;
+  }
 }
 
 .sb-brand-logo {

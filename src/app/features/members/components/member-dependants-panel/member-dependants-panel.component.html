@@ -1,0 +1,42 @@
+<div class="dep-heading">
+  <app-icon name="users" [size]="14" />
+  <span>أقارب المالك المسجّلون</span>
+</div>
+
+@if (entry().status === 'loading') {
+  <div class="dep-skeleton">
+    @for (i of [1, 2]; track i) {
+      <div class="dep-skeleton-row"></div>
+    }
+  </div>
+} @else if (entry().status === 'error') {
+  <div class="dep-error">
+    <app-icon name="bell" [size]="16" />
+    <span>{{ entry().errorMessage }}</span>
+    <app-button size="sm" variant="secondary" (clicked)="retry()">إعادة المحاولة</app-button>
+  </div>
+} @else if (entry().items.length === 0) {
+  <div class="dep-empty">
+    <app-icon name="users" [size]="18" />
+    <span>لا يوجد أقارب مسجّلون لهذا المالك</span>
+  </div>
+} @else {
+  <div class="dep-grid">
+    @for (dep of entry().items; track dep.id) {
+      <div class="dep-card">
+        <span class="dep-avatar">
+          @if (dep.pictureUrl; as pic) {
+            <img [src]="pic" [alt]="dep.fullName" />
+          } @else {
+            {{ initial(dep.fullName) }}
+          }
+        </span>
+        <div class="dep-info">
+          <span class="dep-name">{{ dep.fullName }}</span>
+          <span class="dep-phone">{{ dep.phoneNumber || 'بدون رقم' }}</span>
+        </div>
+        <span class="dep-type-badge">{{ dep.dependantType }}</span>
+      </div>
+    }
+  </div>
+}

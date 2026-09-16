@@ -51,7 +51,7 @@
   cursor: pointer;
 
   &:focus-visible {
-    outline: 2px solid var(--bl);
+    outline: 2px solid var(--primary-dark);
     outline-offset: 1px;
   }
 
@@ -91,7 +91,7 @@
   }
 
   &:focus-visible {
-    outline: 2px solid var(--bl);
+    outline: 2px solid var(--primary-dark);
     outline-offset: 1px;
   }
 
@@ -106,12 +106,12 @@
 
   // Active / current page
   &--active {
-    background: var(--bl);
+    background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
     color: #fff;
-    border-color: var(--bl);
-    font-weight: 600;
+    border-color: transparent;
+    font-weight: 700;
     cursor: default;
-    box-shadow: 0 1px 4px rgba(0,0,0,.18);
+    box-shadow: 0 2px 8px -2px color-mix(in srgb, var(--primary) 50%, transparent);
   }
 
   // Prev / Next arrows
@@ -126,6 +126,15 @@
     &:hover:not(:disabled) {
       color: var(--txt);
     }
+  }
+}
+
+.pg-double-chevron {
+  display: inline-flex;
+  align-items: center;
+
+  app-icon:last-child {
+    margin-inline-start: -6px;
   }
 }
 
@@ -173,9 +182,9 @@
   &::placeholder { color: var(--txt3); }
 
   &:focus-visible {
-    outline: 2px solid var(--bl);
+    outline: 2px solid var(--primary-dark);
     outline-offset: 1px;
-    border-color: var(--bl);
+    border-color: var(--primary);
   }
 
   &:disabled { opacity: 0.4; cursor: not-allowed; }

@@ -1,19 +1,33 @@
-import { ChangeDetectionStrategy, Component, OnInit, computed, inject, signal, viewChild } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  OnInit,
+  computed,
+  inject,
+  signal,
+  viewChild,
+} from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MembersService } from '../../data/members.service';
 import { resolveMemberAvatarUrl } from '../../data/members-api.service';
 import { Member, MemberType, VillaType } from '../../data/member.model';
-import { DataTableComponent, TableColumn } from '../../../../shared/components/data-table/data-table.component';
+import {
+  DataTableComponent,
+  TableColumn,
+} from '../../../../shared/components/data-table/data-table.component';
 import { ButtonComponent } from '../../../../shared/components/button/button.component';
+import { RefreshButtonComponent } from '../../../../shared/components/refresh-button/refresh-button.component';
+import { PaginationComponent } from '../../../../shared/components/pagination/pagination.component';
 import { IconComponent } from '../../../../shared/components/icon/icon.component';
 import { ModalComponent } from '../../../../shared/components/modal/modal.component';
 import { FormErrorComponent } from '../../../../shared/components/form-error/form-error.component';
-import { PasswordInputComponent } from '../../../../shared/components/password-input/password-input.component';
 import {
   AddMemberModalComponent,
   MEMBER_TYPES,
   VILLA_TYPES,
 } from '../../components/add-member-modal/add-member-modal.component';
+import { ChangeMemberPasswordModalComponent } from '../../components/change-member-password-modal/change-member-password-modal.component';
+import { MemberDependantsPanelComponent } from '../../components/member-dependants-panel/member-dependants-panel.component';
 import { DialogService } from '../../../../core/services/dialog.service';
 import { ToastService } from '../../../../core/services/toast.service';
 import { ApiError } from '../../../../core/models/api-response.model';
@@ -30,11 +44,14 @@ const PHONE_PATTERN = /^\d{10,}$/;
     ReactiveFormsModule,
     DataTableComponent,
     ButtonComponent,
+    RefreshButtonComponent,
+    PaginationComponent,
     IconComponent,
     ModalComponent,
     FormErrorComponent,
-    PasswordInputComponent,
     AddMemberModalComponent,
+    ChangeMemberPasswordModalComponent,
+    MemberDependantsPanelComponent,
   ],
   templateUrl: './all-members.component.html',
   styleUrl: './all-members.component.scss',
@@ -50,6 +67,7 @@ export class AllMembersComponent implements OnInit {
   protected readonly villaTypes = VILLA_TYPES;
 
   protected readonly addModal = viewChild.required(AddMemberModalComponent);
+  protected readonly passwordModal = viewChild.required(ChangeMemberPasswordModalComponent);
 
   protected readonly columns: TableColumn[] = [
     { key: 'identity', label: 'المالك', align: 'right', width: '260px' },
@@ -66,13 +84,14 @@ export class AllMembersComponent implements OnInit {
   protected readonly editSelectedImage = signal<File | null>(null);
   protected readonly editImagePreviewUrl = signal<string | null>(null);
   protected readonly editDisplayImageUrl = computed(
-    () => this.editImagePreviewUrl() ?? this.resolveAvatar(this.editTarget()?.pictureUrl ?? null),
+    () =>
+      this.editImagePreviewUrl() ??
+      this.resolveAvatar(this.editTarget()?.pictureUrl ?? null),
   );
 
   protected readonly editForm = this.fb.nonNullable.group({
     name: ['', [Validators.required, Validators.minLength(2)]],
     email: ['', [Validators.required, Validators.pattern(EMAIL_PATTERN)]],
-    password: [''],
     phoneNumber: ['', [Validators.required, Validators.pattern(PHONE_PATTERN)]],
     villaAddress: ['', [Validators.required, Validators.minLength(5)]],
     villaNumber: ['', [Validators.required]],
@@ -101,7 +120,6 @@ export class AllMembersComponent implements OnInit {
     this.editForm.reset({
       name: member.userName,
       email: member.email,
-      password: '',
       phoneNumber: member.phoneNumber,
       villaAddress: member.villaAddress,
       villaNumber: member.villaNumber,
@@ -116,6 +134,10 @@ export class AllMembersComponent implements OnInit {
 
   protected closeEdit(): void {
     this.editTarget.set(null);
+  }
+
+  protected openChangePassword(member: Member): void {
+    this.passwordModal().launch(member);
   }
 
   protected onEditImageSelected(event: Event): void {
@@ -160,7 +182,6 @@ export class AllMembersComponent implements OnInit {
         Email: v.email,
         Name: v.name,
         PhoneNumber: v.phoneNumber,
-        Password: v.password || undefined,
         Image: this.editSelectedImage(),
         VillaAddress: v.villaAddress,
         VillaNumber: v.villaNumber,
@@ -173,7 +194,9 @@ export class AllMembersComponent implements OnInit {
       this.toast.success('تم تحديث بيانات المالك بنجاح');
       this.editTarget.set(null);
     } catch (err) {
-      this.serverError.set(apiErrorToMessage(err as ApiError, 'تعذّر حفظ التعديلات'));
+      this.serverError.set(
+        apiErrorToMessage(err as ApiError, 'تعذّر حفظ التعديلات'),
+      );
     } finally {
       this.isSaving.set(false);
     }
@@ -195,5 +218,13 @@ export class AllMembersComponent implements OnInit {
     } catch (err) {
       this.toast.error(apiErrorToMessage(err as ApiError, 'تعذّر حذف المالك'));
     }
+  }
+
+  isMapUrl(value: string | null | undefined): boolean {
+    if (!value) {
+      return false;
+    }
+
+    return /^https?:\/\//i.test(value);
   }
 }

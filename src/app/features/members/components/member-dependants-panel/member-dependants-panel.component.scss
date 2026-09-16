@@ -1,0 +1,122 @@
+:host {
+  display: block;
+}
+
+.dep-heading {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  margin-bottom: 10px;
+  color: var(--primary-dark);
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.dep-skeleton {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.dep-skeleton-row {
+  height: 52px;
+  border-radius: 10px;
+  background: linear-gradient(90deg, var(--bg2) 25%, var(--brd) 50%, var(--bg2) 75%);
+  background-size: 200% 100%;
+  animation: dep-shimmer 1.4s ease-in-out infinite;
+}
+
+@keyframes dep-shimmer {
+  from { background-position: 200% 0; }
+  to   { background-position: -200% 0; }
+}
+
+.dep-error,
+.dep-empty {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: var(--txt3);
+  font-size: 12.5px;
+  padding: 6px 2px;
+}
+
+.dep-error {
+  color: var(--danger);
+}
+
+.dep-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: 10px;
+}
+
+.dep-card {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  border-radius: 12px;
+  background: var(--bg2);
+  border: 1px solid var(--brd);
+}
+
+.dep-avatar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+  color: #fff;
+  font-size: 13px;
+  font-weight: 700;
+  overflow: hidden;
+  flex-shrink: 0;
+
+  img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+}
+
+.dep-info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+  flex: 1;
+}
+
+.dep-name {
+  font-size: 12.5px;
+  font-weight: 700;
+  color: var(--txt);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.dep-phone {
+  font-size: 11px;
+  color: var(--txt3);
+  font-variant-numeric: tabular-nums;
+}
+
+.dep-type-badge {
+  flex-shrink: 0;
+  padding: 3px 10px;
+  border-radius: 999px;
+  background: var(--primary-light);
+  color: var(--primary-dark);
+  font-size: 10.5px;
+  font-weight: 700;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .dep-skeleton-row {
+    animation: none;
+  }
+}

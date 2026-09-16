@@ -45,13 +45,16 @@ export interface CreateMemberRequest {
   DeviceToken?: string;
 }
 
-/** `PUT /Dashboard/updateMember`, multipart — verified against the live Swagger contract. All fields but Id are optional ("Send empty value" in Swagger). */
+/**
+ * `PUT /Dashboard/updateMember`, multipart — verified against the live Swagger contract. All fields but Id are optional ("Send empty value" in Swagger).
+ * No longer carries a password — that moved to its own `updateMemberPassword`
+ * endpoint (confirmed 2026-09-16); do not re-add a `Password` field here.
+ */
 export interface UpdateMemberRequest {
   Id: number;
   Email?: string;
   Name?: string;
   PhoneNumber?: string;
-  Password?: string;
   Image?: File | null;
   VillaAddress?: string;
   VillaNumber?: string;
@@ -60,4 +63,25 @@ export interface UpdateMemberRequest {
   VillaStreet?: string;
   MemberType?: MemberType;
   VillaType?: VillaType;
+}
+
+/** `PUT /Dashboard/updateMemberPassword`, JSON body — confirmed 2026-09-16, separate from the general update endpoint. */
+export interface UpdateMemberPasswordRequest {
+  memberId: number;
+  newPassword: string;
+}
+
+/**
+ * `GET /Dashboard/memberFamilyDependants/{memberId}` — bare array, confirmed
+ * 2026-09-16. A dependant's `pictureUrl` is already an absolute URL in the
+ * live response (unlike `Member.pictureUrl`) — render it as-is, do not run
+ * it through `resolveMemberAvatarUrl()`.
+ */
+export interface FamilyDependant {
+  id: number;
+  fullName: string;
+  phoneNumber: string;
+  pictureUrl: string | null;
+  dependantType: string;
+  memberId: number;
 }

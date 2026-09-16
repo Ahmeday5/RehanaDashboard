@@ -1,0 +1,58 @@
+<div class="vms-shell" [class.vms-shell--open]="isOpen()" [class.vms-shell--invalid]="isInvalid()" [class.vms-shell--disabled]="disabled()">
+  <div
+    class="vms-trigger"
+    [class.vms-trigger--disabled]="disabled()"
+    (click)="open()"
+    (keydown)="onKeydown($event)"
+    tabindex="0"
+  >
+    @for (entry of selected(); track entry.villaNumber) {
+      <span class="vms-chip">
+        <span class="vms-chip-villa">{{ entry.villaNumber }}</span>
+        @if (entry.memberName) {
+          <span class="vms-chip-member">{{ entry.memberName }}</span>
+        }
+        <button type="button" class="vms-chip-remove" (click)="removeEntry(entry.villaNumber, $event)">
+          <app-icon name="x" [size]="11" />
+        </button>
+      </span>
+    }
+
+    <input
+      type="text"
+      class="vms-search-input"
+      [value]="query()"
+      [placeholder]="selected().length === 0 ? placeholder() : ''"
+      (input)="onQueryInput($any($event.target).value)"
+      (focus)="open()"
+      (click)="$event.stopPropagation()"
+      #searchInput
+    />
+  </div>
+
+  @if (isOpen()) {
+    <div class="vms-panel" role="listbox">
+      @if (isLoading()) {
+        <div class="vms-panel-state">
+          <span class="vms-spinner"></span>
+          جارِ البحث...
+        </div>
+      } @else if (options().length === 0) {
+        <div class="vms-panel-state">لا توجد فيلل مطابقة</div>
+      } @else {
+        @for (entry of options(); track entry.villaNumber; let i = $index) {
+          <button
+            type="button"
+            class="vms-option"
+            [class.vms-option--active]="i === activeIndex()"
+            (mouseenter)="activeIndex.set(i)"
+            (click)="addEntry(entry)"
+          >
+            <span class="vms-option-villa">فيلا {{ entry.villaNumber }}</span>
+            <span class="vms-option-member">{{ entry.memberName }}</span>
+          </button>
+        }
+      }
+    </div>
+  }
+</div>

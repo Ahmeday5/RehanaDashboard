@@ -1,0 +1,67 @@
+<div class="gs-shell" [class.gs-shell--open]="isOpen()" [class.gs-shell--invalid]="isInvalid()" [class.gs-shell--disabled]="disabled()">
+  <button
+    type="button"
+    class="gs-trigger"
+    [disabled]="disabled()"
+    (click)="isOpen() ? close() : open()"
+    (keydown)="onKeydown($event)"
+  >
+    <app-icon name="shield" [size]="15" class="gs-trigger-icon" />
+
+    @if (isOpen()) {
+      <input
+        type="text"
+        class="gs-search-input"
+        [value]="query()"
+        [placeholder]="selected()?.userName || placeholder()"
+        (input)="onQueryInput($any($event.target).value)"
+        (click)="$event.stopPropagation()"
+        #searchInput
+      />
+    } @else if (selected()) {
+      <span class="gs-value">
+        <strong>{{ selected()!.userName }}</strong>
+        @if (selected()!.gateNumber) {
+          <span class="gs-value-gate">بوابة {{ selected()!.gateNumber }}</span>
+        }
+      </span>
+    } @else {
+      <span class="gs-placeholder">{{ placeholder() }}</span>
+    }
+
+    @if (clearable() && selected() && !isOpen()) {
+      <span class="gs-clear" (click)="clear($event)">
+        <app-icon name="x" [size]="13" />
+      </span>
+    }
+
+    <app-icon name="chevron-down" [size]="14" class="gs-chevron" />
+  </button>
+
+  @if (isOpen()) {
+    <div class="gs-panel" role="listbox">
+      @if (isLoading()) {
+        <div class="gs-panel-state">
+          <span class="gs-spinner"></span>
+          جارِ تحميل حراس الأمن...
+        </div>
+      } @else if (options().length === 0) {
+        <div class="gs-panel-state">لا يوجد حراس أمن مطابقون</div>
+      } @else {
+        @for (guard of options(); track guard.id; let i = $index) {
+          <button
+            type="button"
+            class="gs-option"
+            [class.gs-option--active]="i === activeIndex()"
+            [class.gs-option--selected]="guard.id === selected()?.id"
+            (mouseenter)="activeIndex.set(i)"
+            (click)="selectEntry(guard)"
+          >
+            <span class="gs-option-name">{{ guard.userName }}</span>
+            <span class="gs-option-gate">بوابة {{ guard.gateNumber }}</span>
+          </button>
+        }
+      }
+    </div>
+  }
+</div>

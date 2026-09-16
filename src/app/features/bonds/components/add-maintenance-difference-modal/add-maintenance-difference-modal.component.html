@@ -1,0 +1,53 @@
+<app-modal [open]="open()" title="إضافة فرق صيانة" size="md" (closed)="close()">
+  <form class="diff-form" [formGroup]="form" (ngSubmit)="onSubmit()" novalidate>
+    <div class="field">
+      <label class="field-label">الفيلل المستهدفة</label>
+      <app-villa-multi-select formControlName="villaNumbers" placeholder="اختر فيلا أو أكثر..." />
+      <app-form-error [control]="form.controls.villaNumbers" label="الفيلل" />
+    </div>
+
+    <div class="form-grid">
+      <div class="field">
+        <label class="field-label">سعر المتر</label>
+        <input class="form-control" formControlName="pricePerMeter" placeholder="مثال: 100" inputmode="decimal" />
+        <app-form-error [control]="form.controls.pricePerMeter" label="سعر المتر" />
+      </div>
+
+      <div class="field">
+        <label class="field-label">العملة</label>
+        <select class="form-select" formControlName="currency">
+          @for (c of currencies; track c) {
+            <option [value]="c">{{ c }}</option>
+          }
+        </select>
+      </div>
+
+      <div class="field">
+        <label class="field-label">التاريخ</label>
+        <input class="form-control" type="date" formControlName="date" appDatePickerAnywhere />
+        <app-form-error [control]="form.controls.date" label="التاريخ" />
+      </div>
+    </div>
+
+    <div class="field">
+      <label class="field-label">وصف السند</label>
+      <input class="form-control" formControlName="bondDescription" placeholder="مثال: فرق صيانة الربع الأول" />
+      <app-form-error [control]="form.controls.bondDescription" label="وصف السند" />
+    </div>
+
+    @if (serverError(); as msg) {
+      <div class="server-error" role="alert">
+        <app-icon name="bell" [size]="15" />
+        <span>{{ msg }}</span>
+      </div>
+    }
+  </form>
+
+  <ng-container modal-footer>
+    <app-button variant="secondary" (clicked)="close()">إلغاء</app-button>
+    <app-button [loading]="isSubmitting()" (clicked)="onSubmit()">
+      <app-icon name="wrench" [size]="14" />
+      إضافة الفرق
+    </app-button>
+  </ng-container>
+</app-modal>

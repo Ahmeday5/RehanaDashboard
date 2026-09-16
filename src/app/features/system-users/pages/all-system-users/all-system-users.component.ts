@@ -4,14 +4,16 @@ import { SystemUsersService } from '../../data/system-users.service';
 import { SystemUser, SystemUserRole } from '../../data/system-user.model';
 import { DataTableComponent, TableColumn } from '../../../../shared/components/data-table/data-table.component';
 import { ButtonComponent } from '../../../../shared/components/button/button.component';
+import { RefreshButtonComponent } from '../../../../shared/components/refresh-button/refresh-button.component';
+import { PaginationComponent } from '../../../../shared/components/pagination/pagination.component';
 import { IconComponent } from '../../../../shared/components/icon/icon.component';
 import { ModalComponent } from '../../../../shared/components/modal/modal.component';
 import { FormErrorComponent } from '../../../../shared/components/form-error/form-error.component';
-import { PasswordInputComponent } from '../../../../shared/components/password-input/password-input.component';
 import {
   AddSystemUserModalComponent,
   SYSTEM_USER_ROLES,
 } from '../../components/add-system-user-modal/add-system-user-modal.component';
+import { ChangeSystemUserPasswordModalComponent } from '../../components/change-system-user-password-modal/change-system-user-password-modal.component';
 import { DialogService } from '../../../../core/services/dialog.service';
 import { ToastService } from '../../../../core/services/toast.service';
 import { ApiError } from '../../../../core/models/api-response.model';
@@ -28,11 +30,13 @@ const PHONE_PATTERN = /^\d{10,}$/;
     ReactiveFormsModule,
     DataTableComponent,
     ButtonComponent,
+    RefreshButtonComponent,
+    PaginationComponent,
     IconComponent,
     ModalComponent,
     FormErrorComponent,
-    PasswordInputComponent,
     AddSystemUserModalComponent,
+    ChangeSystemUserPasswordModalComponent,
   ],
   templateUrl: './all-system-users.component.html',
   styleUrl: './all-system-users.component.scss',
@@ -45,6 +49,7 @@ export class AllSystemUsersComponent implements OnInit {
 
   protected readonly roles = SYSTEM_USER_ROLES;
   protected readonly addModal = viewChild.required(AddSystemUserModalComponent);
+  protected readonly passwordModal = viewChild.required(ChangeSystemUserPasswordModalComponent);
 
   protected readonly columns: TableColumn[] = [
     { key: 'fullName', label: 'الاسم الكامل', align: 'right' },
@@ -61,7 +66,6 @@ export class AllSystemUsersComponent implements OnInit {
     fullName: ['', [Validators.required, Validators.minLength(2)]],
     email: ['', [Validators.required, Validators.pattern(EMAIL_PATTERN)]],
     phoneNumber: ['', [Validators.required, Validators.pattern(PHONE_PATTERN)]],
-    password: [''],
     role: ['Admin' as SystemUserRole, [Validators.required]],
   });
 
@@ -88,7 +92,6 @@ export class AllSystemUsersComponent implements OnInit {
       fullName: user.fullName ?? '',
       email: user.email,
       phoneNumber: user.phoneNumber ?? '',
-      password: '',
       role: user.roles?.[0] ?? 'Admin',
     });
     this.editTarget.set(user);
@@ -96,6 +99,10 @@ export class AllSystemUsersComponent implements OnInit {
 
   protected closeEdit(): void {
     this.editTarget.set(null);
+  }
+
+  protected openChangePassword(user: SystemUser): void {
+    this.passwordModal().launch(user);
   }
 
   protected async saveEdit(): Promise<void> {
@@ -114,7 +121,6 @@ export class AllSystemUsersComponent implements OnInit {
         email: v.email,
         fullName: v.fullName,
         phoneNumber: v.phoneNumber,
-        password: v.password,
         roles: [v.role],
       });
       this.toast.success('تم تحديث بيانات المستخدم بنجاح');

@@ -1,0 +1,53 @@
+<app-modal [open]="open()" title="إضافة دفعة فرق صيانة" size="sm" (closed)="close()">
+  <form class="pay-form" [formGroup]="form" (ngSubmit)="onSubmit()" novalidate>
+    <div class="field">
+      <label class="field-label">الفيلا</label>
+      <app-villa-select formControlName="villaNumber" placeholder="اختر فيلا..." />
+      <app-form-error [control]="form.controls.villaNumber" label="الفيلا" />
+    </div>
+
+    <div class="form-grid">
+      <div class="field">
+        <label class="field-label">المبلغ</label>
+        <input class="form-control" formControlName="amount" placeholder="مثال: 1000" inputmode="decimal" />
+        <app-form-error [control]="form.controls.amount" label="المبلغ" />
+      </div>
+
+      <div class="field">
+        <label class="field-label">العملة</label>
+        <select class="form-select" formControlName="currency">
+          @for (c of currencies; track c) {
+            <option [value]="c">{{ c }}</option>
+          }
+        </select>
+      </div>
+    </div>
+
+    <div class="field">
+      <label class="field-label">التاريخ</label>
+      <input class="form-control" type="date" formControlName="date" appDatePickerAnywhere />
+      <app-form-error [control]="form.controls.date" label="التاريخ" />
+    </div>
+
+    <div class="field">
+      <label class="field-label">وصف السند</label>
+      <input class="form-control" formControlName="bondDescription" placeholder="مثال: سداد فرق صيانة" />
+      <app-form-error [control]="form.controls.bondDescription" label="وصف السند" />
+    </div>
+
+    @if (serverError(); as msg) {
+      <div class="server-error" role="alert">
+        <app-icon name="bell" [size]="15" />
+        <span>{{ msg }}</span>
+      </div>
+    }
+  </form>
+
+  <ng-container modal-footer>
+    <app-button variant="secondary" (clicked)="close()">إلغاء</app-button>
+    <app-button [loading]="isSubmitting()" (clicked)="onSubmit()">
+      <app-icon name="receipt" [size]="14" />
+      تسجيل الدفعة
+    </app-button>
+  </ng-container>
+</app-modal>

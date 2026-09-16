@@ -3,13 +3,16 @@
     <div class="pgt">إدارة المستخدمين</div>
     <div class="pgs">مستخدمو لوحة التحكم — المسؤولون ومديرو الحسابات</div>
   </div>
-  <app-button (clicked)="openAddModal()">
-    <app-icon name="plus" [size]="15" />
-    إضافة مستخدم
-  </app-button>
+  <div class="pgh-actions">
+    <app-refresh-button [loading]="users.isRefreshing()" (refresh)="users.load(undefined, undefined, true)" />
+    <app-button (clicked)="openAddModal()">
+      <app-icon name="plus" [size]="15" />
+      إضافة مستخدم
+    </app-button>
+  </div>
 </div>
 
-@if (users.state().status === 'loading') {
+@if (users.state().status === 'loading' && users.state().items.length === 0) {
   <div class="users-skeleton">
     @for (i of [1, 2, 3, 4, 5]; track i) {
       <div class="users-skeleton-row"></div>
@@ -40,6 +43,9 @@
       <app-button size="sm" variant="secondary" [iconOnly]="true" (clicked)="openEdit(user)" title="تعديل">
         <app-icon name="edit" [size]="14" />
       </app-button>
+      <app-button size="sm" variant="secondary" [iconOnly]="true" (clicked)="openChangePassword(user)" title="تغيير كلمة السر">
+        <app-icon name="lock" [size]="14" />
+      </app-button>
       <app-button size="sm" variant="danger" [iconOnly]="true" (clicked)="confirmDelete(user)" title="حذف">
         <app-icon name="trash" [size]="14" />
       </app-button>
@@ -56,13 +62,27 @@
     trackByKey="id"
     [hasActions]="true"
     [actionsTemplate]="rowActions"
+    [refreshing]="users.state().status === 'loading' && users.state().items.length > 0"
     emptyMessage="لا يوجد مستخدمون بعد"
     actionsLabel="الإجراء"
+  />
+
+  <app-pagination
+    [pageIndex]="users.state().page"
+    [pageSize]="users.state().pageSize"
+    [count]="users.state().totalItems"
+    [totalPages]="users.state().totalPages"
+    [disabled]="users.state().status === 'loading'"
+    (pageChange)="users.load($event)"
+    (pageSizeChange)="users.load(1, $event)"
   />
 }
 
 <!-- ═══════ Add System User — modal, launched from the button above ═══════ -->
 <app-add-system-user-modal (created)="onUserCreated(); users.load()" />
+
+<!-- ═══════ Change Password — modal, launched from a row action ═══════ -->
+<app-change-system-user-password-modal />
 
 <!-- ═══════ Edit dialog ═══════ -->
 <app-modal [open]="isEditOpen()" title="تعديل بيانات المستخدم" size="md" (closed)="closeEdit()">
@@ -83,11 +103,6 @@
       <label class="field-label">رقم الهاتف</label>
       <input class="form-control" formControlName="phoneNumber" />
       <app-form-error [control]="editForm.controls.phoneNumber" label="رقم الهاتف" />
-    </div>
-
-    <div class="field">
-      <label class="field-label">كلمة السر (اتركها فارغة لعدم التغيير)</label>
-      <app-password-input formControlName="password" autocomplete="new-password" />
     </div>
 
     <div class="field">

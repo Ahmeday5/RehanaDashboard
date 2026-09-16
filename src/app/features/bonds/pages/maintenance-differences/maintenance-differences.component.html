@@ -1,0 +1,96 @@
+<div class="pgh">
+  <div>
+    <div class="pgt">فروق الصيانة</div>
+    <div class="pgs">سندات صرف فروق الصيانة المضافة على الفيلل</div>
+  </div>
+  <div class="pgh-actions">
+    <app-refresh-button [loading]="isRefreshing()" (refresh)="refresh()" />
+    <app-button (clicked)="openAddModal()">
+      <app-icon name="plus" [size]="15" />
+      إضافة فرق صيانة
+    </app-button>
+  </div>
+</div>
+
+<form class="filter-bar" [formGroup]="filterForm" novalidate>
+  <div class="filter-select">
+    <app-villa-select
+      formControlName="villaNumber"
+      placeholder="رقم الفيلا"
+      [clearable]="true"
+    />
+  </div>
+  <div class="filter-select">
+    <app-villa-select
+      formControlName="memberName"
+      emitField="memberName"
+      searchField="memberName"
+      placeholder="اسم المالك"
+      [clearable]="true"
+    />
+  </div>
+  <div class="filter-field filter-field--date">
+    <app-icon name="calendar" [size]="13" class="filter-icon" />
+    <input class="filter-input" type="date" formControlName="fromDate" appDatePickerAnywhere />
+  </div>
+  <div class="filter-field filter-field--date">
+    <app-icon name="calendar" [size]="13" class="filter-icon" />
+    <input class="filter-input" type="date" formControlName="toDate" appDatePickerAnywhere />
+  </div>
+  @if (hasActiveFilters()) {
+    <button type="button" class="filter-clear" (click)="resetFilters()">
+      <app-icon name="x" [size]="13" />
+      مسح الفلاتر
+    </button>
+  }
+</form>
+
+@if (service.state().status === 'loading' && service.state().items.length === 0) {
+  <div class="diffs-skeleton">
+    @for (i of [1, 2, 3, 4, 5]; track i) {
+      <div class="diffs-skeleton-row"></div>
+    }
+  </div>
+} @else if (service.state().status === 'error') {
+  <div class="diffs-error">
+    <app-icon name="bell" [size]="20" />
+    <span>{{ service.state().errorMessage }}</span>
+    <app-button size="sm" variant="secondary" (clicked)="service.load()">إعادة المحاولة</app-button>
+  </div>
+} @else {
+  <ng-template #indexCell let-bond let-index="index">
+    <span class="row-number">{{ (service.state().page - 1) * service.state().pageSize + index + 1 }}</span>
+  </ng-template>
+
+  <ng-template #amountCell let-bond>
+    <span class="amount-value">{{ formatAmount(bond) }}</span>
+  </ng-template>
+
+  <app-data-table
+    [columns]="[
+      { key: 'index', label: '#', align: 'center', width: '55px', cellTemplate: indexCell },
+      { key: 'villaNumber', label: 'الفيلا', align: 'center' },
+      { key: 'memberName', label: 'المالك', align: 'right' },
+      { key: 'date', label: 'التاريخ', align: 'center' },
+      { key: 'bondDescription', label: 'الوصف', align: 'right' },
+      { key: 'amount', label: 'المبلغ', align: 'center', cellTemplate: amountCell }
+    ]"
+    [data]="service.state().items"
+    trackByKey="_rowId"
+    [refreshing]="service.state().status === 'loading' && service.state().items.length > 0"
+    emptyMessage="لا توجد فروقات صيانة مطابقة"
+  />
+
+  <app-pagination
+    [pageIndex]="service.state().page"
+    [pageSize]="service.state().pageSize"
+    [count]="service.state().totalItems"
+    [totalPages]="service.state().totalPages"
+    [disabled]="service.state().status === 'loading'"
+    (pageChange)="service.load($event)"
+    (pageSizeChange)="service.load(1, $event)"
+  />
+}
+
+<!-- ═══════ Add Maintenance Difference — modal, launched from the button above ═══════ -->
+<app-add-maintenance-difference-modal (created)="onDifferenceCreated($event)" />

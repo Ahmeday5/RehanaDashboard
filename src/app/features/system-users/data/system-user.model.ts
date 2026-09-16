@@ -40,12 +40,18 @@ export interface CreateSystemUserRequest {
  * yet (as of 2026-09-15) — sending it as a query param is our agreed
  * placeholder convention, matching `deleteOwner`'s path-param style closely
  * enough that no client change should be needed once the backend lands.
+ * No longer carries a password — that moved to its own `updateOwnerPassword`
+ * endpoint (confirmed 2026-09-16), mirroring Members/Security Guards.
  */
 export interface UpdateSystemUserRequest {
   email: string;
   fullName: string;
   phoneNumber: string;
-  /** Empty string means "leave unchanged" — mirrors the Add Owner (villa) edit dialog's convention. */
-  password: string;
   roles: SystemUserRole[];
+}
+
+/** `PUT /Dashboard/updateOwnerPassword`, JSON body — confirmed 2026-09-16, separate from the general update endpoint. */
+export interface UpdateSystemUserPasswordRequest {
+  ownerId: string;
+  newPassword: string;
 }
