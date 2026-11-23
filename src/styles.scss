@@ -255,6 +255,17 @@ body {
   font-weight: 600;
   margin-bottom: 5px;
 }
+/* "(اختياري)" marker inside a field label — shared by every form. */
+.field-optional {
+  font-weight: 500;
+  color: var(--txt3);
+}
+/* Small helper line under a field (e.g. "used for login"). */
+.field-hint {
+  font-size: 10.5px;
+  color: var(--txt3);
+  line-height: 1.4;
+}
 .form-control,
 .form-select {
   font-family: var(--font-base);

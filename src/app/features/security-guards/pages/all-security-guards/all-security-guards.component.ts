@@ -16,6 +16,7 @@ import { DialogService } from '../../../../core/services/dialog.service';
 import { ToastService } from '../../../../core/services/toast.service';
 import { ApiError } from '../../../../core/models/api-response.model';
 import { apiErrorToMessage } from '../../../../core/utils/api-error.util';
+import { optionalText } from '../../../../shared/utils/form-value.util';
 
 const EMAIL_PATTERN = /^[\w-.]+@([\w-]+\.)+[\w-]{2,4}$/;
 const PHONE_PATTERN = /^\d{10,}$/;
@@ -62,7 +63,8 @@ export class AllSecurityGuardsComponent implements OnInit {
 
   protected readonly editForm = this.fb.nonNullable.group({
     userName: ['', [Validators.required, Validators.minLength(2)]],
-    email: ['', [Validators.required, Validators.pattern(EMAIL_PATTERN)]],
+    /** Optional — guards log in with phone + password. */
+    email: ['', [Validators.pattern(EMAIL_PATTERN)]],
     phoneNumber: ['', [Validators.required, Validators.pattern(PHONE_PATTERN)]],
     gateNumber: ['', [Validators.required, Validators.pattern(GATE_NUMBER_PATTERN)]],
   });
@@ -84,7 +86,7 @@ export class AllSecurityGuardsComponent implements OnInit {
     this.clearEditImage();
     this.editForm.reset({
       userName: guard.userName,
-      email: guard.email,
+      email: guard.email ?? '',
       phoneNumber: guard.phoneNumber,
       gateNumber: guard.gateNumber,
     });
@@ -139,7 +141,7 @@ export class AllSecurityGuardsComponent implements OnInit {
       await this.guards.update({
         Id: target.id,
         UserName: v.userName,
-        Email: v.email,
+        Email: optionalText(v.email),
         PhoneNumber: v.phoneNumber,
         Image: this.editSelectedImage(),
         GateNumber: v.gateNumber,

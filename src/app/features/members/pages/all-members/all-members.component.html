@@ -215,12 +215,6 @@
       </div>
 
       <div class="field">
-        <label class="field-label">البريد الإلكتروني</label>
-        <input class="form-control" type="email" formControlName="email" />
-        <app-form-error [control]="editForm.controls.email" label="البريد الإلكتروني" />
-      </div>
-
-      <div class="field">
         <label class="field-label">رقم الهاتف</label>
         <input class="form-control" formControlName="phoneNumber" />
         <app-form-error [control]="editForm.controls.phoneNumber" label="رقم الهاتف" />
@@ -257,20 +251,9 @@
       </div>
 
       <div class="field">
-        <label class="field-label">عنوان الفيلا</label>
+        <label class="field-label">عنوان الفيلا <span class="field-optional">(اختياري)</span></label>
         <input class="form-control" formControlName="villaAddress" />
         <app-form-error [control]="editForm.controls.villaAddress" label="عنوان الفيلا" />
-      </div>
-
-      <div class="field">
-        <label class="field-label">موقع الفيلا</label>
-        <input class="form-control" formControlName="villaLocation" />
-        <app-form-error [control]="editForm.controls.villaLocation" label="موقع الفيلا" />
-      </div>
-
-      <div class="field">
-        <label class="field-label">الشارع</label>
-        <input class="form-control" formControlName="villaStreet" />
       </div>
     </div>
 

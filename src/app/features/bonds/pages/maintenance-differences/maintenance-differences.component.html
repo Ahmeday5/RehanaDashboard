@@ -63,7 +63,45 @@
   </ng-template>
 
   <ng-template #amountCell let-bond>
-    <span class="amount-value">{{ formatAmount(bond) }}</span>
+    <span class="amount-value">{{ formatMoney(bond.amount, bond.currency) }}</span>
+  </ng-template>
+
+  <ng-template #paidCell let-bond>
+    @if (bond.settlement; as s) {
+      <span class="amount-value amount-value--paid">{{ formatMoney(s.paid, bond.currency) }}</span>
+    } @else {
+      <span class="amount-pending" title="بانتظار بيانات السداد">—</span>
+    }
+  </ng-template>
+
+  <ng-template #remainingCell let-bond>
+    @if (bond.settlement; as s) {
+      <span class="amount-value" [class.amount-value--due]="s.remaining > 0">
+        {{ formatMoney(s.remaining, bond.currency) }}
+      </span>
+    } @else {
+      <span class="amount-pending" title="بانتظار بيانات السداد">—</span>
+    }
+  </ng-template>
+
+  <ng-template #statusCell let-bond>
+    @if (bond.settlement; as s) {
+      <div class="settlement" [attr.data-status]="s.status">
+        <span class="settlement-label">{{ s.statusLabel }}</span>
+        <div
+          class="settlement-track"
+          role="progressbar"
+          aria-valuemin="0"
+          aria-valuemax="100"
+          [attr.aria-valuenow]="s.progressPercent"
+          [attr.aria-label]="'نسبة السداد ' + (s.progressPercent | number: '1.0-0') + '%'"
+        >
+          <div class="settlement-fill" [style.width.%]="s.progressPercent"></div>
+        </div>
+      </div>
+    } @else {
+      <span class="amount-pending" title="بانتظار بيانات السداد">—</span>
+    }
   </ng-template>
 
   <app-data-table
@@ -73,7 +111,10 @@
       { key: 'memberName', label: 'المالك', align: 'right' },
       { key: 'date', label: 'التاريخ', align: 'center' },
       { key: 'bondDescription', label: 'الوصف', align: 'right' },
-      { key: 'amount', label: 'المبلغ', align: 'center', cellTemplate: amountCell }
+      { key: 'amount', label: 'إجمالي المبلغ', align: 'center', cellTemplate: amountCell },
+      { key: 'paidAmount', label: 'المسدد حتى الآن', align: 'center', cellTemplate: paidCell },
+      { key: 'remainingAmount', label: 'المتبقي', align: 'center', cellTemplate: remainingCell },
+      { key: 'settlement', label: 'حالة السداد', align: 'center', width: '150px', cellTemplate: statusCell }
     ]"
     [data]="service.state().items"
     trackByKey="_rowId"

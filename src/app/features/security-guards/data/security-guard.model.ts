@@ -7,7 +7,8 @@
  */
 export interface SecurityGuard {
   id: number;
-  email: string;
+  /** Optional since 2026-11-23 — guards log in with phone + password. */
+  email: string | null;
   userName: string;
   phoneNumber: string;
   pictureUrl: string | null;
@@ -15,10 +16,14 @@ export interface SecurityGuard {
   deviceToken: string;
 }
 
-/** `POST /Dashboard/addSecurityGuard`, multipart — verified against the live Swagger contract. */
+/**
+ * `POST /Dashboard/addSecurityGuard`, multipart — verified against the live Swagger contract.
+ * `Email` is optional (2026-11-23): guards authenticate with phone number +
+ * password, so it's omitted from the request entirely when left blank.
+ */
 export interface CreateSecurityGuardRequest {
   UserName: string;
-  Email: string;
+  Email?: string;
   Password: string;
   PhoneNumber: string;
   Image?: File | null;

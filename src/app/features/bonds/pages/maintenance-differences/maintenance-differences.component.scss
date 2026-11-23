@@ -103,6 +103,65 @@
   font-weight: 700;
   color: var(--primary-dark);
   font-variant-numeric: tabular-nums;
+
+  &--paid {
+    color: var(--gr);
+  }
+
+  &--due {
+    color: var(--re);
+  }
+}
+
+.amount-pending {
+  color: var(--txt3);
+}
+
+// ── Settlement status: label + progress bar, colour driven by `data-status` ──
+.settlement {
+  --settlement-color: var(--re);
+  --settlement-bg: var(--re-l);
+
+  display: inline-flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 5px;
+  min-width: 110px;
+
+  &[data-status='partial'] {
+    --settlement-color: var(--am);
+    --settlement-bg: var(--am-l);
+  }
+
+  &[data-status='paid'] {
+    --settlement-color: var(--gr);
+    --settlement-bg: var(--gr-l);
+  }
+}
+
+.settlement-label {
+  align-self: center;
+  padding: 2px 10px;
+  border-radius: 999px;
+  background: var(--settlement-bg);
+  color: var(--settlement-color);
+  font-size: 11px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.settlement-track {
+  height: 5px;
+  border-radius: 999px;
+  background: var(--bg3);
+  overflow: hidden;
+}
+
+.settlement-fill {
+  height: 100%;
+  border-radius: inherit;
+  background: var(--settlement-color);
+  transition: width 0.3s ease;
 }
 
 .diffs-skeleton {
@@ -138,5 +197,9 @@
 @media (prefers-reduced-motion: reduce) {
   .diffs-skeleton-row {
     animation: none;
+  }
+
+  .settlement-fill {
+    transition: none;
   }
 }

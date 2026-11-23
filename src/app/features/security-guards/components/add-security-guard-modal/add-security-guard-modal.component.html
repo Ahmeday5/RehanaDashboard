@@ -34,15 +34,16 @@
     </div>
 
     <div class="field">
-      <label class="field-label">البريد الإلكتروني</label>
-      <input class="form-control" type="email" formControlName="email" placeholder="name@example.com" />
-      <app-form-error [control]="form.controls.email" label="البريد الإلكتروني" />
+      <label class="field-label">رقم الهاتف</label>
+      <input class="form-control" type="tel" inputmode="numeric" formControlName="phoneNumber" placeholder="01xxxxxxxxx" />
+      <span class="field-hint">يُستخدم مع كلمة السر لتسجيل دخول الحارس</span>
+      <app-form-error [control]="form.controls.phoneNumber" label="رقم الهاتف" />
     </div>
 
     <div class="field">
-      <label class="field-label">رقم الهاتف</label>
-      <input class="form-control" formControlName="phoneNumber" placeholder="01xxxxxxxxx" />
-      <app-form-error [control]="form.controls.phoneNumber" label="رقم الهاتف" />
+      <label class="field-label">البريد الإلكتروني <span class="field-optional">(اختياري)</span></label>
+      <input class="form-control" type="email" formControlName="email" placeholder="name@example.com" />
+      <app-form-error [control]="form.controls.email" label="البريد الإلكتروني" />
     </div>
 
     <div class="field">

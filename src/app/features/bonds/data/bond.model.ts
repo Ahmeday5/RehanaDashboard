@@ -16,6 +16,18 @@ export interface Bond {
   amount: number;
   villaNumber: string;
   memberName: string;
+  /**
+   * Running total paid against this disbursement so far.
+   * PENDING BACKEND (2026-11-23): not returned yet — optional until the
+   * contract is confirmed. Only meaningful on `Disbursement` rows.
+   */
+  paidAmount?: number | null;
+  /**
+   * Outstanding balance on this disbursement (`amount - paidAmount`).
+   * PENDING BACKEND (2026-11-23): not returned yet — optional until the
+   * contract is confirmed. Only meaningful on `Disbursement` rows.
+   */
+  remainingAmount?: number | null;
 }
 
 /** A `Bond` plus a client-synthesized stable key for `@for`/`DataTableComponent` tracking, since the API returns no id. */

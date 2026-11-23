@@ -1,6 +1,7 @@
 import { Injectable, inject, signal } from '@angular/core';
 import { firstValueFrom } from 'rxjs';
 import { BondsApiService } from './bonds-api.service';
+import { BondEventsService } from './bond-events.service';
 import { BondRow, MemberReceiptRequest, toBondRow } from './bond.model';
 import { RequestState, initialRequestState } from '../../../shared/data/request-state';
 import { ApiError } from '../../../core/models/api-response.model';
@@ -30,6 +31,7 @@ const EMPTY_FILTERS: MaintenancePaymentsFilters = {
 @Injectable({ providedIn: 'root' })
 export class MaintenancePaymentsService {
   private readonly api = inject(BondsApiService);
+  private readonly events = inject(BondEventsService);
 
   private readonly stateSignal = signal<RequestState<BondRow>>(initialRequestState<BondRow>());
   readonly state = this.stateSignal.asReadonly();
@@ -90,6 +92,9 @@ export class MaintenancePaymentsService {
     this.isSubmittingSignal.set(true);
     try {
       await firstValueFrom(this.api.memberReceipt(payload));
+      // Announce before our own reload so dependent screens (maintenance
+      // differences' paid/remaining) start refetching in parallel.
+      this.events.notifyReceiptRecorded(payload);
       await this.load(1);
     } finally {
       this.isSubmittingSignal.set(false);

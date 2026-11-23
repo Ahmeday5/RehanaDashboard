@@ -32,8 +32,8 @@ import { DialogService } from '../../../../core/services/dialog.service';
 import { ToastService } from '../../../../core/services/toast.service';
 import { ApiError } from '../../../../core/models/api-response.model';
 import { apiErrorToMessage } from '../../../../core/utils/api-error.util';
+import { optionalText } from '../../../../shared/utils/form-value.util';
 
-const EMAIL_PATTERN = /^[\w-.]+@([\w-]+\.)+[\w-]{2,4}$/;
 const PHONE_PATTERN = /^\d{10,}$/;
 
 @Component({
@@ -91,13 +91,11 @@ export class AllMembersComponent implements OnInit {
 
   protected readonly editForm = this.fb.nonNullable.group({
     name: ['', [Validators.required, Validators.minLength(2)]],
-    email: ['', [Validators.required, Validators.pattern(EMAIL_PATTERN)]],
     phoneNumber: ['', [Validators.required, Validators.pattern(PHONE_PATTERN)]],
-    villaAddress: ['', [Validators.required, Validators.minLength(5)]],
     villaNumber: ['', [Validators.required]],
-    villaLocation: ['', [Validators.required, Validators.minLength(5)]],
+    /** Optional — mirrors the add form; `minLength` only applies once filled. */
+    villaAddress: ['', [Validators.minLength(5)]],
     villaSpace: ['', [Validators.required]],
-    villaStreet: [''],
     memberType: ['مالك' as MemberType, [Validators.required]],
     villaType: ['مشطبة' as VillaType, [Validators.required]],
   });
@@ -119,13 +117,10 @@ export class AllMembersComponent implements OnInit {
     this.clearEditImage();
     this.editForm.reset({
       name: member.userName,
-      email: member.email,
       phoneNumber: member.phoneNumber,
-      villaAddress: member.villaAddress,
+      villaAddress: member.villaAddress ?? '',
       villaNumber: member.villaNumber,
-      villaLocation: member.villaLocation,
       villaSpace: member.villaSpace,
-      villaStreet: member.villaStreet,
       memberType: (member.memberType || 'مالك') as MemberType,
       villaType: (member.villaType || 'مشطبة') as VillaType,
     });
@@ -179,15 +174,12 @@ export class AllMembersComponent implements OnInit {
     try {
       await this.members.update({
         Id: target.id,
-        Email: v.email,
         Name: v.name,
         PhoneNumber: v.phoneNumber,
         Image: this.editSelectedImage(),
-        VillaAddress: v.villaAddress,
+        VillaAddress: optionalText(v.villaAddress),
         VillaNumber: v.villaNumber,
-        VillaLocation: v.villaLocation,
         VillaSpace: v.villaSpace,
-        VillaStreet: v.villaStreet,
         MemberType: v.memberType,
         VillaType: v.villaType,
       });

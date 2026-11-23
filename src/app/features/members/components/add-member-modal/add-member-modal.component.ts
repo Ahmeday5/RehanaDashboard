@@ -9,9 +9,9 @@ import { FormErrorComponent } from '../../../../shared/components/form-error/for
 import { PasswordInputComponent } from '../../../../shared/components/password-input/password-input.component';
 import { ApiError } from '../../../../core/models/api-response.model';
 import { apiErrorToMessage } from '../../../../core/utils/api-error.util';
+import { optionalText } from '../../../../shared/utils/form-value.util';
 
 const PHONE_PATTERN = /^\d{10,}$/;
-const EMAIL_PATTERN = /^[\w-.]+@([\w-]+\.)+[\w-]{2,4}$/;
 const PASSWORD_PATTERN = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$&*~]).{8,}$/;
 
 /** Fixed sets, confirmed with the user (2026-09-15) — not free text. */
@@ -44,14 +44,12 @@ export class AddMemberModalComponent {
 
   protected readonly form = this.fb.nonNullable.group({
     name: ['', [Validators.required, Validators.minLength(2)]],
-    email: ['', [Validators.required, Validators.pattern(EMAIL_PATTERN)]],
     password: ['', [Validators.required, Validators.minLength(8), Validators.pattern(PASSWORD_PATTERN)]],
     phoneNumber: ['', [Validators.required, Validators.pattern(PHONE_PATTERN)]],
-    villaAddress: ['', [Validators.required, Validators.minLength(5)]],
     villaNumber: ['', [Validators.required]],
-    villaLocation: ['', [Validators.required, Validators.minLength(5)]],
+    /** Optional — `minLength` only kicks in once the user types something. */
+    villaAddress: ['', [Validators.minLength(5)]],
     villaSpace: ['', [Validators.required]],
-    villaStreet: [''],
     memberType: ['مالك' as MemberType, [Validators.required]],
     villaType: ['مشطبة' as VillaType, [Validators.required]],
   });
@@ -106,16 +104,13 @@ export class AddMemberModalComponent {
 
     try {
       await this.members.create({
-        Name: v.name,
-        Email: v.email,
+        Name: v.name.trim(),
         Password: v.password,
         PhoneNumber: v.phoneNumber,
         Image: this.selectedImage(),
-        VillaAddress: v.villaAddress,
-        VillaLocation: v.villaLocation,
-        VillaNumber: v.villaNumber,
+        VillaAddress: optionalText(v.villaAddress),
+        VillaNumber: v.villaNumber.trim(),
         VillaSpace: v.villaSpace,
-        VillaStreet: v.villaStreet,
         MemberType: v.memberType,
         VillaType: v.villaType,
         DeviceToken: '',

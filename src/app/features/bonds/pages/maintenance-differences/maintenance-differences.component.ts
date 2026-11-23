@@ -1,10 +1,10 @@
 import { ChangeDetectionStrategy, Component, DestroyRef, OnInit, inject, signal, viewChild } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { DecimalPipe } from '@angular/common';
 import { FormBuilder, ReactiveFormsModule } from '@angular/forms';
 import { debounceTime } from 'rxjs';
 import { MaintenanceDifferencesService } from '../../data/maintenance-differences.service';
-import { BondRow } from '../../data/bond.model';
-import { DataTableComponent, TableColumn } from '../../../../shared/components/data-table/data-table.component';
+import { DataTableComponent } from '../../../../shared/components/data-table/data-table.component';
 import { ButtonComponent } from '../../../../shared/components/button/button.component';
 import { RefreshButtonComponent } from '../../../../shared/components/refresh-button/refresh-button.component';
 import { PaginationComponent } from '../../../../shared/components/pagination/pagination.component';
@@ -20,6 +20,8 @@ const FILTER_DEBOUNCE_MS = 350;
 /**
  * "فروقات الصيانة" — every `Disbursement` bond, with a single-row filter
  * bar (villa / member / date range, confirmed 2026-09-16) above the table.
+ * Each row shows its total / paid-so-far / remaining balance; the service
+ * refetches automatically whenever a payment is recorded elsewhere.
  */
 @Component({
   selector: 'app-maintenance-differences',
@@ -27,6 +29,7 @@ const FILTER_DEBOUNCE_MS = 350;
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     ReactiveFormsModule,
+    DecimalPipe,
     DataTableComponent,
     ButtonComponent,
     RefreshButtonComponent,
@@ -48,13 +51,6 @@ export class MaintenanceDifferencesComponent implements OnInit {
   protected readonly addModal = viewChild.required(AddMaintenanceDifferenceModalComponent);
   protected readonly isRefreshing = signal(false);
 
-  protected readonly columns: TableColumn[] = [
-    { key: 'villaNumber', label: 'الفيلا', align: 'center' },
-    { key: 'memberName', label: 'المالك', align: 'right' },
-    { key: 'date', label: 'التاريخ', align: 'center' },
-    { key: 'bondDescription', label: 'الوصف', align: 'right' },
-    { key: 'amount', label: 'المبلغ', align: 'center' },
-  ];
 
   protected readonly filterForm = this.fb.nonNullable.group({
     villaNumber: [''],
@@ -104,7 +100,7 @@ export class MaintenanceDifferencesComponent implements OnInit {
     }
   }
 
-  protected formatAmount(bond: BondRow): string {
-    return `${bond.amount.toLocaleString('ar-EG')} ${bond.currency}`;
+  protected formatMoney(value: number, currency: string): string {
+    return `${value.toLocaleString('ar-EG')} ${currency}`;
   }
 }

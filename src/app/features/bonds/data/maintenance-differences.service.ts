@@ -1,7 +1,10 @@
 import { Injectable, inject, signal } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { firstValueFrom } from 'rxjs';
 import { BondsApiService } from './bonds-api.service';
-import { BondRow, BulkDisbursementRequest, toBondRow } from './bond.model';
+import { BondEventsService } from './bond-events.service';
+import { Bond, BondRow, BulkDisbursementRequest, toBondRow } from './bond.model';
+import { BondSettlement, toBondSettlement } from './bond-settlement';
 import { RequestState, initialRequestState } from '../../../shared/data/request-state';
 import { ApiError } from '../../../core/models/api-response.model';
 import { apiErrorToMessage } from '../../../core/utils/api-error.util';
@@ -20,6 +23,15 @@ const EMPTY_FILTERS: MaintenanceDifferencesFilters = {
   toDate: '',
 };
 
+/** A disbursement row enriched with its settlement breakdown (`null` until the backend returns balances). */
+export interface MaintenanceDifferenceRow extends BondRow {
+  settlement: BondSettlement | null;
+}
+
+function toMaintenanceDifferenceRow(bond: Bond, index: number): MaintenanceDifferenceRow {
+  return { ...toBondRow(bond, index), settlement: toBondSettlement(bond) };
+}
+
 /**
  * "فروقات الصيانة" (maintenance differences) — `Disbursement`-type bonds.
  * One signal-based service per spec §1.3 pattern; not cached (see
@@ -28,8 +40,11 @@ const EMPTY_FILTERS: MaintenanceDifferencesFilters = {
 @Injectable({ providedIn: 'root' })
 export class MaintenanceDifferencesService {
   private readonly api = inject(BondsApiService);
+  private readonly events = inject(BondEventsService);
 
-  private readonly stateSignal = signal<RequestState<BondRow>>(initialRequestState<BondRow>());
+  private readonly stateSignal = signal<RequestState<MaintenanceDifferenceRow>>(
+    initialRequestState<MaintenanceDifferenceRow>(),
+  );
   readonly state = this.stateSignal.asReadonly();
 
   private readonly filtersSignal = signal<MaintenanceDifferencesFilters>(EMPTY_FILTERS);
@@ -37,6 +52,14 @@ export class MaintenanceDifferencesService {
 
   private readonly isSubmittingSignal = signal(false);
   readonly isSubmitting = this.isSubmittingSignal.asReadonly();
+
+  constructor() {
+    // A payment recorded anywhere (e.g. the payments screen) changes the
+    // paid/remaining balances shown here — refetch so they're never stale.
+    this.events.receiptRecorded$
+      .pipe(takeUntilDestroyed())
+      .subscribe(() => void this.refreshIfLoaded());
+  }
 
   setFilters(filters: MaintenanceDifferencesFilters): void {
     this.filtersSignal.set(filters);
@@ -69,7 +92,7 @@ export class MaintenanceDifferencesService {
       this.stateSignal.update((s) => ({
         ...s,
         status: 'success',
-        items: res.items.map(toBondRow),
+        items: res.items.map(toMaintenanceDifferenceRow),
         page: res.page,
         pageSize: res.pageSize,
         totalItems: res.totalItems,
@@ -82,6 +105,16 @@ export class MaintenanceDifferencesService {
         errorMessage: apiErrorToMessage(err as ApiError, 'تعذّر تحميل فروقات الصيانة'),
       }));
     }
+  }
+
+  /**
+   * Reloads the current page/filters in place — but only if this screen has
+   * been opened at least once this session. Never-visited screens load
+   * fresh on first open anyway, so there's nothing to keep in sync yet.
+   */
+  private async refreshIfLoaded(): Promise<void> {
+    if (this.stateSignal().status === 'idle') return;
+    await this.load();
   }
 
   /** Returns the backend's confirmation message + total so the caller can toast it verbatim. */

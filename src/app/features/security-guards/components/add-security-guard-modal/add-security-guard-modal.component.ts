@@ -8,6 +8,7 @@ import { FormErrorComponent } from '../../../../shared/components/form-error/for
 import { PasswordInputComponent } from '../../../../shared/components/password-input/password-input.component';
 import { ApiError } from '../../../../core/models/api-response.model';
 import { apiErrorToMessage } from '../../../../core/utils/api-error.util';
+import { optionalText } from '../../../../shared/utils/form-value.util';
 
 const PHONE_PATTERN = /^\d{10,}$/;
 const EMAIL_PATTERN = /^[\w-.]+@([\w-]+\.)+[\w-]{2,4}$/;
@@ -37,7 +38,8 @@ export class AddSecurityGuardModalComponent {
 
   protected readonly form = this.fb.nonNullable.group({
     userName: ['', [Validators.required, Validators.minLength(2)]],
-    email: ['', [Validators.required, Validators.pattern(EMAIL_PATTERN)]],
+    /** Optional — guards log in with phone + password; format is only checked when filled. */
+    email: ['', [Validators.pattern(EMAIL_PATTERN)]],
     password: ['', [Validators.required, Validators.minLength(8), Validators.pattern(PASSWORD_PATTERN)]],
     phoneNumber: ['', [Validators.required, Validators.pattern(PHONE_PATTERN)]],
     gateNumber: ['', [Validators.required, Validators.pattern(GATE_NUMBER_PATTERN)]],
@@ -93,8 +95,8 @@ export class AddSecurityGuardModalComponent {
 
     try {
       await this.guards.create({
-        UserName: v.userName,
-        Email: v.email,
+        UserName: v.userName.trim(),
+        Email: optionalText(v.email),
         Password: v.password,
         PhoneNumber: v.phoneNumber,
         Image: this.selectedImage(),
