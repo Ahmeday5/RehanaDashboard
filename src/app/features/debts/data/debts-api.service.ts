@@ -1,5 +1,5 @@
 import { Injectable, inject } from '@angular/core';
-import { Observable, forkJoin, map } from 'rxjs';
+import { Observable, map, of, switchMap } from 'rxjs';
 import { ApiService } from '../../../core/services/api.service';
 import { PagedResponse } from '../../../core/models/api-response.model';
 import { withSkipLoader } from '../../../core/http/http-context.tokens';
@@ -53,21 +53,19 @@ export class DebtsApiService {
   }
 
   /**
-   * No endpoint returns "outstanding balance for villa X" directly
-   * (confirmed 2026-09-16) — computed client-side as
-   * `sum(debts.amount) - sum(debtPayments.amount)` for the villa, draining
-   * every page of both lists first. Used to show the balance live in the
-   * "Add Payment" modal before the user submits.
+   * Current outstanding balance for a villa, shown live in the "Add Payment"
+   * modal. Reads `remainingAmount` off the villa's latest payment (the list
+   * is newest-first, so `page=1&pageSize=1` is enough). With no payments yet,
+   * nothing has been paid, so the balance is the sum of the villa's debts.
    */
   getOutstandingBalance(villaNumber: string): Observable<number> {
-    const debts$ = fetchAllPages((page, pageSize) => this.list({ villaNumber, page, pageSize }));
-    const payments$ = fetchAllPages((page, pageSize) => this.listPayments({ villaNumber, page, pageSize }));
-
-    return forkJoin([debts$, payments$]).pipe(
-      map(([debts, payments]) => {
-        const totalDebt = debts.reduce((sum, d) => sum + d.amount, 0);
-        const totalPaid = payments.reduce((sum, p) => sum + p.amount, 0);
-        return totalDebt - totalPaid;
+    return this.listPayments({ villaNumber, page: 1, pageSize: 1 }).pipe(
+      switchMap((res) => {
+        const latest = res.items[0];
+        if (latest) return of(latest.remainingAmount);
+        return fetchAllPages((page, pageSize) => this.list({ villaNumber, page, pageSize })).pipe(
+          map((debts) => debts.reduce((sum, d) => sum + d.amount, 0)),
+        );
       }),
     );
   }

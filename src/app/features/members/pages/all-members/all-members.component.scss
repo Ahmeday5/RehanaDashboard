@@ -111,22 +111,6 @@
   color: var(--txt2);
 }
 
-.villa-location {
-  display: flex;
-  align-items: center;
-  gap: 5px;
-  min-width: 0;
-  font-size: 10.5px;
-  color: var(--txt3);
-}
-
-.villa-location span {
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  max-width: 130px;
-}
-
 .villa-separator {
   color: var(--brd2);
   flex-shrink: 0;

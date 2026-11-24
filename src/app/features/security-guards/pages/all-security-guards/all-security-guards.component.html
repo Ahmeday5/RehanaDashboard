@@ -44,6 +44,10 @@
     </div>
   </ng-template>
 
+  <ng-template #emailCell let-guard>
+    <span>{{ guard.email || '-' }}</span>
+  </ng-template>
+
   <ng-template #rowActions let-guard>
     <div class="row-actions">
       <app-button size="sm" variant="secondary" [iconOnly]="true" (clicked)="openEdit(guard)" title="تعديل">
@@ -62,7 +66,7 @@
     [columns]="[
       { key: 'identity', label: 'حارس الأمن', align: 'right', width: '260px', cellTemplate: identityCell },
       { key: 'phoneNumber', label: 'الهاتف', align: 'center' },
-      { key: 'email', label: 'البريد الإلكتروني', align: 'right' }
+      { key: 'email', label: 'البريد الإلكتروني', align: 'right', cellTemplate: emailCell }
     ]"
     [data]="guards.state().items"
     trackByKey="id"

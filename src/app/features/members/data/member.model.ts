@@ -3,27 +3,24 @@
  * "الملاك" concept, distinct from the "Owner" backend URLs which are the
  * dashboard's own Admin/Account Manager users (see system-users feature).
  * Verified directly against the live backend's real request/response
- * shapes (2026-09-15) — `getAllMembers` returns a bare array, no pagination.
+ * shapes (2026-09-15).
+ * 2026-11-24: `email`, `villaStreet` and `villaLocation` were removed from
+ * the API entirely (not accepted, not returned) — do not re-add them.
  */
 export interface Member {
   id: number;
-  /** No longer collected on create (2026-11-23) — `null` for newer members. */
-  email: string | null;
   userName: string;
   phoneNumber: string;
   /** Relative path (e.g. `/Images/Members/...png`) — resolve with `resolveMemberAvatarUrl()`, never render directly. */
   pictureUrl: string | null;
-  /** Optional on create (2026-11-23). */
+  /** Optional (2026-11-24) — may come back `null`; render as "-". */
   villaAddress: string | null;
   /** Alphanumeric in practice (e.g. "12C", "d33") — always a string, never parse as a number. */
   villaNumber: string;
-  /** No longer collected on create (2026-11-23) — `null` for newer members. */
-  villaLocation: string | null;
   villaSpace: string;
-  /** No longer collected on create (2026-11-23) — `null` for newer members. */
-  villaStreet: string | null;
   memberType: MemberType | '';
   villaType: VillaType | '';
+  deviceToken?: string | null;
 }
 
 /** Fixed set, confirmed with the user (2026-09-15) — a dropdown, not free text. */

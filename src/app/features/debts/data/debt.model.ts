@@ -16,14 +16,25 @@ export interface Debt {
   createdAt: string;
 }
 
-/** `GET /Dashboard/debtPayments` row shape — confirmed 2026-09-16. */
+/**
+ * `GET /Dashboard/debtPayments` row shape. The running-balance fields were
+ * added 2026-11-24. The list is ordered newest-first, so when filtered by
+ * `villaNumber` the first item on page 1 carries the villa's final balance.
+ */
 export interface DebtPayment {
   id: number;
   villaNumber: string;
   memberName: string;
+  /** This payment's own amount. */
   amount: number;
   notes: string;
   date: string;
+  /** Total amount owed by the villa. */
+  totalDebt: number;
+  /** Cumulative amount paid up to and including this payment. */
+  totalPaid: number;
+  /** Amount still owed by the villa after this payment. */
+  remainingAmount: number;
 }
 
 /** Query params shared by `GET /Dashboard/debts` and `GET /Dashboard/debtPayments` — only `villaNumber` filter confirmed. */
@@ -55,6 +66,7 @@ export interface CreateDebtPaymentRequest {
 
 export interface CreateDebtPaymentResponse {
   message: string;
+  paymentAmount: number;
   totalDebt: number;
   totalPaid: number;
   totalOutstanding: number;

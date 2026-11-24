@@ -12,6 +12,14 @@ export interface DebtPaymentsFilters {
 
 const EMPTY_FILTERS: DebtPaymentsFilters = { villaNumber: '' };
 
+/** Final balance for the filtered villa — taken from the newest payment (first item on page 1). */
+export interface VillaPaymentsSummary {
+  villaNumber: string;
+  totalDebt: number;
+  totalPaid: number;
+  remainingAmount: number;
+}
+
 /**
  * "مدفوعات المديونيات" — `DebtPayment` records. A separate screen and a
  * separate service from `DebtsService` (confirmed 2026-09-16, mirroring the
@@ -31,13 +39,23 @@ export class DebtPaymentsService {
   private readonly isSubmittingSignal = signal(false);
   readonly isSubmitting = this.isSubmittingSignal.asReadonly();
 
+  /**
+   * `null` unless a villa filter is active and has results. Only refreshed
+   * when page 1 loads (the list is newest-first, so page 1's first item holds
+   * the villa's final balance) — paging further keeps the last value.
+   */
+  private readonly summarySignal = signal<VillaPaymentsSummary | null>(null);
+  readonly summary = this.summarySignal.asReadonly();
+
   setFilters(filters: DebtPaymentsFilters): void {
     this.filtersSignal.set(filters);
+    this.summarySignal.set(null);
     void this.load(1);
   }
 
   clearFilters(): void {
     this.filtersSignal.set(EMPTY_FILTERS);
+    this.summarySignal.set(null);
     void this.load(1);
   }
 
@@ -64,6 +82,19 @@ export class DebtPaymentsService {
         totalItems: res.totalItems,
         totalPages: res.totalPages,
       }));
+      if (res.page === 1 || targetPage === 1) {
+        const latest = f.villaNumber ? res.items[0] : undefined;
+        this.summarySignal.set(
+          latest
+            ? {
+                villaNumber: f.villaNumber,
+                totalDebt: latest.totalDebt,
+                totalPaid: latest.totalPaid,
+                remainingAmount: latest.remainingAmount,
+              }
+            : null,
+        );
+      }
     } catch (err) {
       this.stateSignal.update((s) => ({
         ...s,

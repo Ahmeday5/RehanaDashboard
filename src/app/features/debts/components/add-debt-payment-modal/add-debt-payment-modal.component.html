@@ -9,12 +9,12 @@
     @if (balance().status === 'loading') {
       <div class="balance-card balance-card--loading">
         <span class="balance-spinner"></span>
-        جارِ حساب المديونية المستحقة...
+        جارِ تحميل المتبقي على الفيلا...
       </div>
     } @else if (balance().status === 'error') {
       <div class="balance-card balance-card--error">
         <app-icon name="bell" [size]="14" />
-        تعذّر حساب المديونية المستحقة
+        تعذّر تحميل المتبقي على الفيلا
       </div>
     } @else if (balance().status === 'loaded') {
       <div
@@ -26,7 +26,7 @@
         <app-icon [name]="balanceAmount() > 0 ? 'trending-down' : balanceAmount() < 0 ? 'trending-up' : 'check'" [size]="16" />
         <div class="balance-copy">
           <span class="balance-label">
-            @if (balanceAmount() > 0) { المستحق على هذه الفيلا }
+            @if (balanceAmount() > 0) { المتبقي على هذه الفيلا }
             @else if (balanceAmount() < 0) { رصيد دائن لهذه الفيلا }
             @else { لا يوجد مستحق على هذه الفيلا }
           </span>
@@ -41,6 +41,16 @@
       <label class="field-label">المبلغ المدفوع</label>
       <input class="form-control" formControlName="amount" placeholder="مثال: 200" inputmode="decimal" />
       <app-form-error [control]="form.controls.amount" label="المبلغ" />
+      @if (exceedsBalance()) {
+        <div class="amount-warning" role="status">
+          <app-icon name="bell" [size]="13" />
+          <span>
+            المبلغ أكبر من المتبقي على الفيلا
+            ({{ (balanceAmount() > 0 ? balanceAmount() : 0) | number: '1.0-2' }} ج.م)
+            — الفرق هيتسجّل كرصيد دائن.
+          </span>
+        </div>
+      }
     </div>
 
     <div class="field">

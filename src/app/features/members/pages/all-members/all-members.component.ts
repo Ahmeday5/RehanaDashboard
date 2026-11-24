@@ -74,7 +74,6 @@ export class AllMembersComponent implements OnInit {
     { key: 'villaNumber', label: 'رقم الفيلا', align: 'center' },
     { key: 'memberType', label: 'نوع الساكن', align: 'center' },
     { key: 'phoneNumber', label: 'الهاتف', align: 'center' },
-    { key: 'email', label: 'البريد الإلكتروني', align: 'right' },
   ];
 
   protected readonly editTarget = signal<Member | null>(null);
@@ -177,7 +176,9 @@ export class AllMembersComponent implements OnInit {
         Name: v.name,
         PhoneNumber: v.phoneNumber,
         Image: this.editSelectedImage(),
-        VillaAddress: optionalText(v.villaAddress),
+        // Blank → omitted (backend keeps the old value), except when the user
+        // cleared an existing address: send "" so it actually gets removed.
+        VillaAddress: optionalText(v.villaAddress) ?? (target.villaAddress ? '' : undefined),
         VillaNumber: v.villaNumber,
         VillaSpace: v.villaSpace,
         MemberType: v.memberType,
@@ -210,13 +211,5 @@ export class AllMembersComponent implements OnInit {
     } catch (err) {
       this.toast.error(apiErrorToMessage(err as ApiError, 'تعذّر حذف المالك'));
     }
-  }
-
-  isMapUrl(value: string | null | undefined): boolean {
-    if (!value) {
-      return false;
-    }
-
-    return /^https?:\/\//i.test(value);
   }
 }

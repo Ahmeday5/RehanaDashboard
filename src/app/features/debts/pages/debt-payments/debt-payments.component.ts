@@ -1,8 +1,8 @@
 import { ChangeDetectionStrategy, Component, OnInit, inject, signal, viewChild } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule } from '@angular/forms';
 import { DebtPaymentsService } from '../../data/debt-payments.service';
-import { CreateDebtPaymentResponse, DebtPayment } from '../../data/debt.model';
-import { DataTableComponent, TableColumn } from '../../../../shared/components/data-table/data-table.component';
+import { CreateDebtPaymentResponse } from '../../data/debt.model';
+import { DataTableComponent } from '../../../../shared/components/data-table/data-table.component';
 import { ButtonComponent } from '../../../../shared/components/button/button.component';
 import { RefreshButtonComponent } from '../../../../shared/components/refresh-button/refresh-button.component';
 import { PaginationComponent } from '../../../../shared/components/pagination/pagination.component';
@@ -42,14 +42,6 @@ export class DebtPaymentsComponent implements OnInit {
   protected readonly addModal = viewChild.required(AddDebtPaymentModalComponent);
   protected readonly isRefreshing = signal(false);
 
-  protected readonly columns: TableColumn[] = [
-    { key: 'villaNumber', label: 'الفيلا', align: 'center' },
-    { key: 'memberName', label: 'المالك', align: 'right' },
-    { key: 'date', label: 'التاريخ', align: 'center' },
-    { key: 'notes', label: 'ملاحظات', align: 'right' },
-    { key: 'amount', label: 'المبلغ', align: 'center' },
-  ];
-
   protected readonly filterForm = this.fb.nonNullable.group({
     villaNumber: [''],
   });
@@ -63,15 +55,15 @@ export class DebtPaymentsComponent implements OnInit {
     this.addModal().launch();
   }
 
+  /** `createPayment()` already reloads page 1, so the table and the villa summary are fresh by the time this fires. */
   protected onPaymentCreated(result: CreateDebtPaymentResponse): void {
-    const outstanding = result.totalOutstanding;
-    const title =
-      outstanding > 0
-        ? `متبقٍ: ${outstanding.toLocaleString('ar-EG')} ج.م`
-        : outstanding < 0
-          ? `رصيد دائن: ${Math.abs(outstanding).toLocaleString('ar-EG')} ج.م`
-          : 'تم السداد بالكامل';
-    this.toast.success(result.message, { title });
+    const details = [
+      `الدفعة: ${this.formatMoney(result.paymentAmount)}`,
+      `المستحق: ${this.formatMoney(result.totalDebt)}`,
+      `المسدد: ${this.formatMoney(result.totalPaid)}`,
+      `المتبقي: ${this.formatMoney(result.totalOutstanding)}`,
+    ].join(' • ');
+    this.toast.success(details, { title: result.message || 'تم تسجيل الدفعة بنجاح', duration: 8000 });
   }
 
   protected resetFilters(): void {
@@ -92,8 +84,9 @@ export class DebtPaymentsComponent implements OnInit {
     }
   }
 
-  protected formatAmount(payment: DebtPayment): string {
-    return `${payment.amount.toLocaleString('ar-EG')} ج.م`;
+  /** Same currency format as the rest of the dashboard: `1٬234 ج.م`. */
+  protected formatMoney(value: number | null | undefined): string {
+    return `${(value ?? 0).toLocaleString('ar-EG')} ج.م`;
   }
 
   protected formatDate(iso: string): string {

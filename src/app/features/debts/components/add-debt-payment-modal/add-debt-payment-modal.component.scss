@@ -22,6 +22,24 @@
   font-size: 12px;
 }
 
+.amount-warning {
+  display: flex;
+  align-items: flex-start;
+  gap: 6px;
+  padding: 8px 10px;
+  border-radius: 9px;
+  background: var(--am-l);
+  color: var(--am);
+  font-size: 11.5px;
+  font-weight: 600;
+  line-height: 1.5;
+
+  app-icon {
+    margin-top: 2px;
+    flex-shrink: 0;
+  }
+}
+
 /* ═══════ Live outstanding-balance card ═══════ */
 .balance-card {
   display: flex;

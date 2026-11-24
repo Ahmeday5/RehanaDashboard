@@ -42,7 +42,7 @@
     </span>
     <div class="member-identity">
       <span class="member-name">{{ member.userName }}</span>
-      <span class="member-address">{{ member.villaAddress || 'بدون عنوان' }}</span>
+      <span class="member-address">{{ member.villaAddress || '-' }}</span>
     </div>
   </div>
 </ng-template>
@@ -77,27 +77,6 @@
         <span>{{ member.villaType }}</span>
         }
       </div>
-    </div>
-
-    <div class="villa-location">
-      @if (member.villaStreet) {
-      <span>{{ member.villaStreet }}</span>
-      }
-
-      @if (member.villaStreet && member.villaLocation) {
-      <span class="villa-separator">•</span>
-      }
-
-
-      @if (isMapUrl(member.villaLocation)) {
-      <a class="villa-map" [href]="member.villaLocation" target="_blank" rel="noopener noreferrer"
-        title="فتح موقع الفيلا على Google Maps" (click)="$event.stopPropagation()">
-        <i class="fa-solid fa-location-dot"></i>
-      </a>
-      }@else {
-        <span class="villa-location">{{ member.villaLocation || 'بدون موقع' }}</span>
-       }
-
     </div>
 
   </div>
@@ -153,11 +132,6 @@
       key: 'phoneNumber',
       label: 'الهاتف',
       align: 'center'
-    },
-    {
-      key: 'email',
-      label: 'البريد الإلكتروني',
-      align: 'right'
     }
   ]" [data]="members.state().items" trackByKey="id" [hasActions]="true" [actionsTemplate]="rowActions"
   [expandable]="true" [expandedTemplate]="dependantsPanel" expandLabel="أقارب المالك"

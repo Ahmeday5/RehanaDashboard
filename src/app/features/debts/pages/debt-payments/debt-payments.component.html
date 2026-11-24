@@ -24,6 +24,33 @@
   }
 </form>
 
+@if (service.summary(); as summary) {
+  <section class="villa-summary" aria-label="ملخص مديونية الفيلا">
+    <div class="villa-summary-head">
+      <app-icon name="wallet" [size]="16" />
+      <span>ملخص الفيلا {{ summary.villaNumber }}</span>
+    </div>
+    <div class="villa-summary-grid">
+      <div class="villa-summary-item">
+        <span class="villa-summary-label">المبلغ المستحق</span>
+        <span class="villa-summary-value">{{ formatMoney(summary.totalDebt) }}</span>
+      </div>
+      <div class="villa-summary-item">
+        <span class="villa-summary-label">المبلغ المسدد</span>
+        <span class="villa-summary-value villa-summary-value--paid">{{ formatMoney(summary.totalPaid) }}</span>
+      </div>
+      <div
+        class="villa-summary-item villa-summary-item--remaining"
+        [class.is-owing]="summary.remainingAmount > 0"
+        [class.is-settled]="summary.remainingAmount <= 0"
+      >
+        <span class="villa-summary-label">المبلغ المتبقي</span>
+        <span class="villa-summary-value">{{ formatMoney(summary.remainingAmount) }}</span>
+      </div>
+    </div>
+  </section>
+}
+
 @if (service.state().status === 'loading' && service.state().items.length === 0) {
   <div class="pays-skeleton">
     @for (i of [1, 2, 3, 4, 5]; track i) {
@@ -46,7 +73,23 @@
   </ng-template>
 
   <ng-template #amountCell let-payment>
-    <span class="amount-value">{{ formatAmount(payment) }}</span>
+    <span class="amount-value">{{ formatMoney(payment.amount) }}</span>
+  </ng-template>
+
+  <ng-template #totalDebtCell let-payment>
+    <span class="money-value">{{ formatMoney(payment.totalDebt) }}</span>
+  </ng-template>
+
+  <ng-template #totalPaidCell let-payment>
+    <span class="money-value">{{ formatMoney(payment.totalPaid) }}</span>
+  </ng-template>
+
+  <ng-template #remainingCell let-payment>
+    <span
+      class="remaining-value"
+      [class.remaining-value--owing]="payment.remainingAmount > 0"
+      [class.remaining-value--settled]="payment.remainingAmount <= 0"
+    >{{ formatMoney(payment.remainingAmount) }}</span>
   </ng-template>
 
   <app-data-table
@@ -56,7 +99,10 @@
       { key: 'memberName', label: 'المالك', align: 'right' },
       { key: 'date', label: 'التاريخ', align: 'center', cellTemplate: dateCell },
       { key: 'notes', label: 'ملاحظات', align: 'right' },
-      { key: 'amount', label: 'المبلغ', align: 'center', cellTemplate: amountCell }
+      { key: 'amount', label: 'مبلغ الدفعة', align: 'center', cellTemplate: amountCell },
+      { key: 'totalDebt', label: 'المبلغ المستحق', align: 'center', cellTemplate: totalDebtCell },
+      { key: 'totalPaid', label: 'المبلغ المسدد', align: 'center', cellTemplate: totalPaidCell },
+      { key: 'remainingAmount', label: 'المبلغ المتبقي', align: 'center', cellTemplate: remainingCell }
     ]"
     [data]="service.state().items"
     trackByKey="id"

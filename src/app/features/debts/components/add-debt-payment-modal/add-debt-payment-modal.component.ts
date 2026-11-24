@@ -1,6 +1,7 @@
 import { ChangeDetectionStrategy, Component, DestroyRef, computed, inject, output, signal } from '@angular/core';
 import { DecimalPipe } from '@angular/common';
-import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
+import { Subscription } from 'rxjs';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { DebtPaymentsService } from '../../data/debt-payments.service';
 import { DebtsApiService } from '../../data/debts-api.service';
@@ -22,12 +23,11 @@ type BalanceState =
 /**
  * "دفع مديونية" — records a payment against a villa's outstanding debt via
  * `POST /Dashboard/debtPayment` (confirmed 2026-09-16). Shows the villa's
- * current outstanding balance live as soon as it's selected — no endpoint
- * returns that number directly, so it's computed client-side as
- * `sum(debts) - sum(payments)` via `DebtsApiService.getOutstandingBalance()`
- * (confirmed 2026-09-16). Paying more than the balance is allowed and
- * intentionally produces a negative outstanding (credit) — never clamp or
- * block the amount against the balance.
+ * current outstanding balance live as soon as it's selected, via
+ * `DebtsApiService.getOutstandingBalance()` (latest payment's
+ * `remainingAmount`, or total debts when there are no payments yet).
+ * Paying more than the balance is allowed and intentionally produces a
+ * negative outstanding (credit) — warn, but never clamp or block.
  */
 @Component({
   selector: 'app-add-debt-payment-modal',
@@ -69,10 +69,24 @@ export class AddDebtPaymentModalComponent {
     notes: ['', [Validators.required, Validators.minLength(3)]],
   });
 
+  private readonly amountValue = toSignal(this.form.controls.amount.valueChanges, { initialValue: '' });
+
+  /**
+   * Non-blocking: the backend accepts overpayment (it becomes a credit), so
+   * this only warns. Shown when the typed amount exceeds the loaded balance.
+   */
+  protected readonly exceedsBalance = computed(() => {
+    const b = this.balance();
+    const amount = Number(this.amountValue());
+    if (b.status !== 'loaded' || !this.amountValue() || !Number.isFinite(amount)) return false;
+    return amount > Math.max(b.amount, 0);
+  });
+
   constructor() {
     this.form.controls.villaNumber.valueChanges
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe((villaNumber) => this.loadBalance(villaNumber));
+    this.destroyRef.onDestroy(() => this.balanceSub?.unsubscribe());
   }
 
   launch(): void {
@@ -87,13 +101,17 @@ export class AddDebtPaymentModalComponent {
     this.open.set(false);
   }
 
+  private balanceSub?: Subscription;
+
   private loadBalance(villaNumber: string): void {
     if (!villaNumber) {
+      this.balanceSub?.unsubscribe();
       this.balance.set({ status: 'idle' });
       return;
     }
     this.balance.set({ status: 'loading' });
-    this.debtsApi.getOutstandingBalance(villaNumber).subscribe({
+    this.balanceSub?.unsubscribe();
+    this.balanceSub = this.debtsApi.getOutstandingBalance(villaNumber).subscribe({
       next: (amount) => this.balance.set({ status: 'loaded', amount }),
       error: () => this.balance.set({ status: 'error' }),
     });
