@@ -140,3 +140,137 @@
     animation: none;
   }
 }
+
+/* ═══════ Bond kind filter + maintenance-difference columns ═══════ */
+.filter-field--kind {
+  flex: 0 1 170px;
+
+  select.filter-input {
+    cursor: pointer;
+  }
+}
+
+.desc-cell {
+  display: inline-flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.md-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: var(--primary-light);
+  color: var(--primary-dark);
+  font-size: 10.5px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.money-value {
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.remaining-value {
+  display: inline-block;
+  padding: 3px 10px;
+  border-radius: 8px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+
+  &--owing {
+    color: var(--danger);
+    background: color-mix(in srgb, var(--danger) 9%, transparent);
+  }
+
+  &--settled {
+    color: var(--primary-dark);
+    background: var(--primary-light);
+  }
+}
+
+.muted {
+  color: var(--txt3);
+}
+
+/* ═══════ Filtered-villa yearly summary ═══════ */
+.year-summary {
+  margin-bottom: 18px;
+  padding: 14px 16px;
+  border-radius: 14px;
+  background: var(--bg2);
+  border: 1px solid var(--brd);
+}
+
+.year-summary-head {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 12px;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--txt);
+}
+
+.year-summary-state {
+  padding: 10px 12px;
+  border-radius: 10px;
+  background: var(--bg3);
+  color: var(--txt3);
+  font-size: 12px;
+
+  &--error {
+    color: var(--danger);
+    background: color-mix(in srgb, var(--danger) 8%, transparent);
+  }
+}
+
+.year-summary-scroll {
+  overflow-x: auto;
+}
+
+.year-summary-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 12.5px;
+  font-variant-numeric: tabular-nums;
+
+  th,
+  td {
+    padding: 9px 12px;
+    text-align: center;
+    white-space: nowrap;
+    border-bottom: 1px solid var(--brd);
+  }
+
+  th {
+    font-size: 11.5px;
+    font-weight: 700;
+    color: var(--txt2);
+    background: var(--bg3);
+  }
+
+  tbody tr:last-child td {
+    border-bottom: none;
+  }
+
+  .year-cell {
+    font-weight: 700;
+    color: var(--txt);
+  }
+
+  .md-cell {
+    color: var(--primary-dark);
+    font-weight: 600;
+  }
+
+  .negative {
+    color: var(--danger);
+    font-weight: 700;
+  }
+}

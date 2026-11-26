@@ -17,17 +17,35 @@ export interface Bond {
   villaNumber: string;
   memberName: string;
   /**
-   * Running total paid against this disbursement so far.
-   * PENDING BACKEND (2026-11-23): not returned yet — optional until the
-   * contract is confirmed. Only meaningful on `Disbursement` rows.
+   * True for a maintenance-difference payment (`debtPayment`) that the
+   * backend now surfaces as a `Receipt` bond (2026-11-24). Its description is
+   * "سداد فروق صيانة[ - notes]" and currency "EGP".
+   */
+  isMaintenanceDifference?: boolean;
+  /** Maintenance-difference payments only: amount owed before this payment. `null` on regular bonds. */
+  dueAmount?: number | null;
+  /**
+   * Maintenance-difference payments: amount paid in this payment. `null` on
+   * regular bonds. (The maintenance-differences screen also reads this on
+   * `Disbursement` rows as a running total, pending backend support.)
    */
   paidAmount?: number | null;
-  /**
-   * Outstanding balance on this disbursement (`amount - paidAmount`).
-   * PENDING BACKEND (2026-11-23): not returned yet — optional until the
-   * contract is confirmed. Only meaningful on `Disbursement` rows.
-   */
+  /** Maintenance-difference payments: amount still owed after this payment. `null` on regular bonds. */
   remainingAmount?: number | null;
+}
+
+/**
+ * `GET /Dashboard/GetBondsSummaryByYearByVillaNumber?villaNumber=` — bare
+ * array, one item per year. Since 2026-11-24 `totalReceipt` and `difference`
+ * include maintenance-difference payments; `maintenanceDifferencePayments`
+ * is the part of `totalReceipt` that came from them.
+ */
+export interface BondsYearSummary {
+  year: number;
+  totalReceipt: number;
+  totalDisbursement: number;
+  difference: number;
+  maintenanceDifferencePayments?: number | null;
 }
 
 /** A `Bond` plus a client-synthesized stable key for `@for`/`DataTableComponent` tracking, since the API returns no id. */
@@ -43,6 +61,8 @@ export function toBondRow(bond: Bond, index: number): BondRow {
 export interface BondsQuery {
   [key: string]: unknown;
   type: BondType;
+  /** Omitted = all; `true` = maintenance-difference payments only; `false` = regular bonds only. */
+  isMaintenanceDifference?: boolean;
   villaNumber?: string;
   memberName?: string;
   fromDate?: string;

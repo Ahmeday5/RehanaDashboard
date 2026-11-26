@@ -53,15 +53,14 @@ export interface CreateDebtRequest {
 }
 
 /**
- * `POST /Dashboard/debtPayment` — confirmed 2026-09-16. Paying more than
- * the outstanding balance is allowed by the backend and produces a negative
- * `totalOutstanding` (credit in the resident's favor) — do not clamp or
- * validate the amount against the balance client-side.
+ * `POST /Dashboard/debtPayment`. Since 2026-11-24 the backend returns 400
+ * when `amount <= 0` (`{message}`) or when it exceeds the villa's
+ * outstanding balance (`{message, totalDebt, totalPaid, totalOutstanding}`).
  */
 export interface CreateDebtPaymentRequest {
   villaNumber: string;
   amount: number;
-  notes: string;
+  notes: string | null;
 }
 
 export interface CreateDebtPaymentResponse {

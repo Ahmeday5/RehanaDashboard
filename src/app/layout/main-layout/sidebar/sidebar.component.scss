@@ -59,17 +59,33 @@
      with a physical transform under dir="rtl" put the drawer at the wrong
      edge and only partially off-screen (visually "stuck in the middle").
      The document is RTL-only (spec: hard-locked to Arabic), so a physical
-     right-edge drawer is correct and unambiguous here. */
+     right-edge drawer is correct and unambiguous here.
+
+     Height: the drawer is sized purely by its `top`/`bottom` insets.
+     `height: auto` is required to cancel the desktop `height: 100%` —
+     otherwise height wins over `bottom`, the drawer becomes a full
+     viewport tall starting *below* the topbar, and its tail (the last nav
+     items) is pushed off-screen where no scroll can reach it.
+
+     Closed state also sets `visibility: hidden` so off-screen links are
+     removed from the tab order / screen-reader tree; the visibility flip is
+     delayed on close so the slide-out animation still plays. */
   @media (max-width: 991px) {
     position: fixed;
-    top: 50px;
+    top: var(--topbar-height);
     right: 0;
     bottom: 0;
-    width: 260px !important;
+    height: auto;
+    max-height: none;
+    width: min(280px, 85vw) !important;
     z-index: 1000;
     border-inline-end: none;
     transform: translateX(102%);
-    transition: transform var(--sb-transition), box-shadow var(--sb-transition);
+    visibility: hidden;
+    transition:
+      transform var(--sb-transition),
+      box-shadow var(--sb-transition),
+      visibility 0s linear var(--sb-transition);
 
     .sb-brand-name,
     .sb-sec,
@@ -85,7 +101,18 @@
 
     &.open {
       transform: translateX(0);
+      visibility: visible;
       box-shadow: -10px 0 40px rgba(0, 0, 0, 0.4);
+      transition:
+        transform var(--sb-transition),
+        box-shadow var(--sb-transition),
+        visibility 0s linear 0s;
+    }
+
+    /* Toggle is hidden on mobile, so the nav list owns the bottom edge —
+       keep the last item clear of the iOS home indicator. */
+    .sb-scroll {
+      padding-bottom: calc(16px + env(safe-area-inset-bottom, 0px));
     }
   }
 }
@@ -149,9 +176,13 @@
 .sb-scroll {
   position: relative;
   z-index: 1;
-  flex: 1;
+  flex: 1 1 auto;
+  min-height: 0; // allow the flex child to shrink so overflow-y can engage
   overflow-y: auto;
   overflow-x: hidden;
+  overscroll-behavior: contain; // don't chain scroll to the page behind the drawer
+  -webkit-overflow-scrolling: touch;
+  touch-action: pan-y;
   padding: 10px 0 8px;
 
   scrollbar-width: thin;

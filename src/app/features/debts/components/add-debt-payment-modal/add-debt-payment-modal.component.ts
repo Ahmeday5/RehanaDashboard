@@ -2,7 +2,7 @@ import { ChangeDetectionStrategy, Component, DestroyRef, computed, inject, outpu
 import { DecimalPipe } from '@angular/common';
 import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
 import { Subscription } from 'rxjs';
-import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
+import { AbstractControl, FormBuilder, ReactiveFormsModule, ValidationErrors, Validators } from '@angular/forms';
 import { DebtPaymentsService } from '../../data/debt-payments.service';
 import { DebtsApiService } from '../../data/debts-api.service';
 import { CreateDebtPaymentResponse } from '../../data/debt.model';
@@ -13,6 +13,22 @@ import { FormErrorComponent } from '../../../../shared/components/form-error/for
 import { VillaSelectComponent } from '../../../../shared/components/villa-select/villa-select.component';
 import { ApiError } from '../../../../core/models/api-response.model';
 import { apiErrorToMessage } from '../../../../core/utils/api-error.util';
+
+/** Mirrors the backend's 400 rule — the message string is shown as-is by `<app-form-error>`. */
+function positiveAmount(control: AbstractControl): ValidationErrors | null {
+  const raw = String(control.value ?? '').trim();
+  if (!raw) return null;
+  const n = Number(raw);
+  return Number.isFinite(n) && n > 0 ? null : { positive: 'مبلغ الدفعة يجب أن يكون أكبر من صفر' };
+}
+
+/** 400 body when the amount exceeds what the villa still owes. */
+interface OverpaymentErrorBody {
+  message?: string;
+  totalDebt?: number;
+  totalPaid?: number;
+  totalOutstanding?: number;
+}
 
 type BalanceState =
   | { status: 'idle' }
@@ -26,8 +42,8 @@ type BalanceState =
  * current outstanding balance live as soon as it's selected, via
  * `DebtsApiService.getOutstandingBalance()` (latest payment's
  * `remainingAmount`, or total debts when there are no payments yet).
- * Paying more than the balance is allowed and intentionally produces a
- * negative outstanding (credit) — warn, but never clamp or block.
+ * Since 2026-11-24 the backend rejects amounts <= 0 or above the
+ * outstanding balance (400), so the form enforces both rules up front.
  */
 @Component({
   selector: 'app-add-debt-payment-modal',
@@ -65,15 +81,17 @@ export class AddDebtPaymentModalComponent {
 
   protected readonly form = this.fb.nonNullable.group({
     villaNumber: ['', [Validators.required]],
-    amount: ['', [Validators.required, Validators.pattern(/^\d+(\.\d+)?$/)]],
-    notes: ['', [Validators.required, Validators.minLength(3)]],
+    amount: ['', [Validators.required, Validators.pattern(/^\d+(\.\d+)?$/), positiveAmount]],
+    /** Optional — the API accepts `notes: null`. */
+    notes: [''],
   });
 
   private readonly amountValue = toSignal(this.form.controls.amount.valueChanges, { initialValue: '' });
 
   /**
-   * Non-blocking: the backend accepts overpayment (it becomes a credit), so
-   * this only warns. Shown when the typed amount exceeds the loaded balance.
+   * Blocking: the backend rejects an amount above the villa's outstanding
+   * balance (400). Only enforced once the balance has loaded — if it failed
+   * to load, the backend's own 400 is the fallback.
    */
   protected readonly exceedsBalance = computed(() => {
     const b = this.balance();
@@ -119,7 +137,7 @@ export class AddDebtPaymentModalComponent {
 
   protected async onSubmit(): Promise<void> {
     if (this.isSubmitting()) return;
-    if (this.form.invalid) {
+    if (this.form.invalid || this.exceedsBalance()) {
       this.form.markAllAsTouched();
       return;
     }
@@ -132,12 +150,20 @@ export class AddDebtPaymentModalComponent {
       const result = await this.service.createPayment({
         villaNumber: v.villaNumber,
         amount: Number(v.amount),
-        notes: v.notes,
+        notes: v.notes.trim() || null,
       });
       this.open.set(false);
       this.created.emit(result);
     } catch (err) {
-      this.serverError.set(apiErrorToMessage(err as ApiError, 'تعذّر تسجيل الدفعة'));
+      const apiErr = err as ApiError;
+      const body = (apiErr?.raw ?? null) as OverpaymentErrorBody | null;
+      let message = apiErrorToMessage(apiErr, 'تعذّر تسجيل الدفعة');
+      if (apiErr?.status === 400 && typeof body?.totalOutstanding === 'number') {
+        // The backend's figure is authoritative — sync the balance card to it.
+        this.balance.set({ status: 'loaded', amount: body.totalOutstanding });
+        message += ` — المتبقي على الفيلا: ${body.totalOutstanding.toLocaleString('ar-EG')} ج.م`;
+      }
+      this.serverError.set(message);
     } finally {
       this.isSubmitting.set(false);
     }

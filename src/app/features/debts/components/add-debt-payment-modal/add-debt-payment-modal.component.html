@@ -42,19 +42,18 @@
       <input class="form-control" formControlName="amount" placeholder="مثال: 200" inputmode="decimal" />
       <app-form-error [control]="form.controls.amount" label="المبلغ" />
       @if (exceedsBalance()) {
-        <div class="amount-warning" role="status">
+        <div class="amount-warning" role="alert">
           <app-icon name="bell" [size]="13" />
           <span>
-            المبلغ أكبر من المتبقي على الفيلا
+            مبلغ الدفعة لا يمكن أن يتجاوز المتبقي على الفيلا
             ({{ (balanceAmount() > 0 ? balanceAmount() : 0) | number: '1.0-2' }} ج.م)
-            — الفرق هيتسجّل كرصيد دائن.
           </span>
         </div>
       }
     </div>
 
     <div class="field">
-      <label class="field-label">ملاحظات</label>
+      <label class="field-label">ملاحظات <span class="field-optional">(اختياري)</span></label>
       <input class="form-control" formControlName="notes" placeholder="مثال: دفعة نقدية" />
       <app-form-error [control]="form.controls.notes" label="الملاحظات" />
     </div>

@@ -13,6 +13,14 @@
 </div>
 
 <form class="filter-bar" [formGroup]="filterForm" novalidate>
+  <div class="filter-field filter-field--kind">
+    <app-icon name="filter" [size]="13" class="filter-icon" />
+    <select class="filter-input" formControlName="kind" aria-label="نوع السند">
+      <option value="">الكل</option>
+      <option value="false">سندات عادية</option>
+      <option value="true">فروق صيانة</option>
+    </select>
+  </div>
   <div class="filter-select">
     <app-villa-select formControlName="villaNumber" placeholder="رقم الفيلا" />
   </div>
@@ -40,6 +48,52 @@
   }
 </form>
 
+@if (service.yearSummary(); as ys) {
+  @if (ys.status !== 'idle') {
+    <section class="year-summary" aria-label="ملخص الفيلا بالسنة">
+      <div class="year-summary-head">
+        <app-icon name="chart" [size]="15" />
+        <span>ملخص الفيلا {{ ys.villaNumber }} بالسنة</span>
+      </div>
+
+      @if (ys.status === 'loading') {
+        <div class="year-summary-state">جارِ تحميل الملخص...</div>
+      } @else if (ys.status === 'error') {
+        <div class="year-summary-state year-summary-state--error">{{ ys.message }}</div>
+      } @else if (ys.status === 'success') {
+        @if (ys.rows.length === 0) {
+          <div class="year-summary-state">لا توجد سندات لهذه الفيلا</div>
+        } @else {
+          <div class="year-summary-scroll">
+            <table class="year-summary-table">
+              <thead>
+                <tr>
+                  <th>السنة</th>
+                  <th>إجمالي القبض</th>
+                  <th>منها فروق صيانة</th>
+                  <th>إجمالي الصرف</th>
+                  <th>الفرق</th>
+                </tr>
+              </thead>
+              <tbody>
+                @for (row of ys.rows; track row.year) {
+                  <tr>
+                    <td class="year-cell">{{ row.year }}</td>
+                    <td>{{ formatSummaryMoney(row.totalReceipt) }}</td>
+                    <td class="md-cell">{{ formatSummaryMoney(row.maintenanceDifferencePayments) }}</td>
+                    <td>{{ formatSummaryMoney(row.totalDisbursement) }}</td>
+                    <td [class.negative]="row.difference < 0">{{ formatSummaryMoney(row.difference) }}</td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+          </div>
+        }
+      }
+    </section>
+  }
+}
+
 @if (service.state().status === 'loading' && service.state().items.length === 0) {
   <div class="pays-skeleton">
     @for (i of [1, 2, 3, 4, 5]; track i) {
@@ -61,14 +115,46 @@
     <span class="amount-value">{{ formatAmount(bond) }}</span>
   </ng-template>
 
+  <ng-template #descriptionCell let-bond>
+    <div class="desc-cell">
+      @if (bond.isMaintenanceDifference) {
+        <span class="md-badge">فروق صيانة</span>
+      }
+      <span>{{ bond.bondDescription }}</span>
+    </div>
+  </ng-template>
+
+  <ng-template #dueCell let-bond>
+    <span class="money-value">{{ formatMoney(bond, bond.dueAmount) }}</span>
+  </ng-template>
+
+  <ng-template #paidCell let-bond>
+    <span class="money-value">{{ formatMoney(bond, bond.paidAmount) }}</span>
+  </ng-template>
+
+  <ng-template #remainingCell let-bond>
+    @if (bond.isMaintenanceDifference && bond.remainingAmount != null) {
+      <span
+        class="remaining-value"
+        [class.remaining-value--owing]="bond.remainingAmount > 0"
+        [class.remaining-value--settled]="bond.remainingAmount <= 0"
+      >{{ formatMoney(bond, bond.remainingAmount) }}</span>
+    } @else {
+      <span class="muted">-</span>
+    }
+  </ng-template>
+
   <app-data-table
     [columns]="[
       { key: 'index', label: '#', align: 'center', width: '55px', cellTemplate: indexCell },
       { key: 'villaNumber', label: 'الفيلا', align: 'center' },
       { key: 'memberName', label: 'المالك', align: 'right' },
       { key: 'date', label: 'التاريخ', align: 'center' },
-      { key: 'bondDescription', label: 'الوصف', align: 'right' },
-      { key: 'amount', label: 'المبلغ', align: 'center', cellTemplate: amountCell }
+      { key: 'bondDescription', label: 'الوصف', align: 'right', cellTemplate: descriptionCell },
+      { key: 'amount', label: 'المبلغ', align: 'center', cellTemplate: amountCell },
+      { key: 'dueAmount', label: 'المستحق', align: 'center', cellTemplate: dueCell },
+      { key: 'paidAmount', label: 'المسدد', align: 'center', cellTemplate: paidCell },
+      { key: 'remainingAmount', label: 'المتبقي', align: 'center', cellTemplate: remainingCell }
     ]"
     [data]="service.state().items"
     trackByKey="_rowId"

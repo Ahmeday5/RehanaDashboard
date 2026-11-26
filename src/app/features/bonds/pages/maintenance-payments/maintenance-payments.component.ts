@@ -2,7 +2,7 @@ import { ChangeDetectionStrategy, Component, DestroyRef, OnInit, inject, signal,
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormBuilder, ReactiveFormsModule } from '@angular/forms';
 import { debounceTime } from 'rxjs';
-import { MaintenancePaymentsService } from '../../data/maintenance-payments.service';
+import { BondKindFilter, MaintenancePaymentsService } from '../../data/maintenance-payments.service';
 import { BondRow } from '../../data/bond.model';
 import { DataTableComponent, TableColumn } from '../../../../shared/components/data-table/data-table.component';
 import { ButtonComponent } from '../../../../shared/components/button/button.component';
@@ -51,6 +51,7 @@ export class MaintenancePaymentsComponent implements OnInit {
   protected readonly isRefreshing = signal(false);
 
   protected readonly filterForm = this.fb.nonNullable.group({
+    kind: ['' as BondKindFilter],
     villaNumber: [''],
     memberName: [''],
     fromDate: [''],
@@ -78,13 +79,13 @@ export class MaintenancePaymentsComponent implements OnInit {
   }
 
   protected resetFilters(): void {
-    this.filterForm.reset({ villaNumber: '', memberName: '', fromDate: '', toDate: '' }, { emitEvent: false });
+    this.filterForm.reset({ kind: '', villaNumber: '', memberName: '', fromDate: '', toDate: '' }, { emitEvent: false });
     this.service.clearFilters();
   }
 
   protected hasActiveFilters(): boolean {
     const f = this.service.filters();
-    return !!(f.villaNumber || f.memberName || f.fromDate || f.toDate);
+    return !!(f.kind || f.villaNumber || f.memberName || f.fromDate || f.toDate);
   }
 
   protected async refresh(): Promise<void> {
@@ -98,5 +99,17 @@ export class MaintenancePaymentsComponent implements OnInit {
 
   protected formatAmount(bond: BondRow): string {
     return `${bond.amount.toLocaleString('ar-EG')} ${bond.currency}`;
+  }
+
+  /** Yearly summary has no currency field — uses the dashboard-wide "ج.م"; `null` → "-". */
+  protected formatSummaryMoney(value: number | null | undefined): string {
+    if (value === null || value === undefined) return '-';
+    return `${value.toLocaleString('ar-EG')} ج.م`;
+  }
+
+  /** Due/paid/remaining only apply to maintenance-difference rows — "-" for regular bonds or a `null` value. */
+  protected formatMoney(bond: BondRow, value: number | null | undefined): string {
+    if (!bond.isMaintenanceDifference || value === null || value === undefined) return '-';
+    return `${value.toLocaleString('ar-EG')} ${bond.currency}`;
   }
 }

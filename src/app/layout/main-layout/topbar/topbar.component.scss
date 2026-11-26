@@ -1,6 +1,6 @@
 /* ── TOPBAR ── */
 .topbar {
-  height: 58px;
+  height: var(--topbar-height);
   background: var(--bg2);
   border-bottom: 1px solid var(--brd);
   display: flex;
@@ -11,7 +11,7 @@
   z-index: 100;
   position: relative;
 
-  @media (max-width: 992px) {
+  @media (max-width: 991px) {
     z-index: 1100;
     padding: 0 14px;
   }

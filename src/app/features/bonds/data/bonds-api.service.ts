@@ -3,7 +3,7 @@ import { Observable } from 'rxjs';
 import { ApiService } from '../../../core/services/api.service';
 import { PagedResponse } from '../../../core/models/api-response.model';
 import { withSkipLoader } from '../../../core/http/http-context.tokens';
-import { Bond, BondsQuery, BulkDisbursementRequest, BulkDisbursementResponse, MemberReceiptRequest } from './bond.model';
+import { Bond, BondsQuery, BondsYearSummary, BulkDisbursementRequest, BulkDisbursementResponse, MemberReceiptRequest } from './bond.model';
 
 /**
  * Bonds (سندات) — verified directly against the live backend (2026-09-16).
@@ -51,6 +51,14 @@ export class BondsApiService {
   memberReceipt(payload: MemberReceiptRequest): Observable<void> {
     return this.api.post<void>('Dashboard/memberReceipt', payload, {
       responseType: 'text',
+      context: withSkipLoader(),
+    });
+  }
+
+  /** `GET /Dashboard/GetBondsSummaryByYearByVillaNumber?villaNumber=` — bare array, one row per year. */
+  summaryByYear(villaNumber: string): Observable<BondsYearSummary[]> {
+    return this.api.getList<BondsYearSummary>('Dashboard/GetBondsSummaryByYearByVillaNumber', {
+      params: { villaNumber },
       context: withSkipLoader(),
     });
   }

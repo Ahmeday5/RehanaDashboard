@@ -55,6 +55,10 @@
   --font-display: 'Alexandria', 'Cairo', system-ui, sans-serif;
   --app-height: 100dvh;
 
+  /* Shell metrics — single source for the topbar height so the mobile
+     sidebar drawer can dock directly beneath it without a magic number. */
+  --topbar-height: 58px;
+
   /* Breakpoints (spec §5.4) — mirror core/config/design-tokens.ts, one place. */
   --bp-mobile: 800px;
   --bp-desktop: 1200px;
